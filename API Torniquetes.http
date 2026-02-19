@@ -1,0 +1,6 @@
+@API_Torniquetes_HostAddress = http://localhost:5173
+
+GET {{API_Torniquetes_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###
