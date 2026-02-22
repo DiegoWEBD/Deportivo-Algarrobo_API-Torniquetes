@@ -32,16 +32,165 @@
     "EndpointName": "Conectar"
   },
   {
-    "ContainingType": "API_Torniquetes.Controllers.WeatherForecastController",
-    "Method": "Get",
-    "RelativePath": "WeatherForecast",
+    "ContainingType": "API_Torniquetes.Controllers.TorniquetesController",
+    "Method": "ObtenerMarcajes",
+    "RelativePath": "api/Torniquetes/marcajes",
     "HttpMethod": "GET",
     "IsController": true,
     "Order": 0,
-    "Parameters": [],
+    "Parameters": [
+      {
+        "Name": "ip",
+        "Type": "System.String",
+        "IsRequired": false
+      },
+      {
+        "Name": "puerto",
+        "Type": "System.Int32",
+        "IsRequired": false
+      }
+    ],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "API_Torniquetes.Controllers.TorniquetesController",
+    "Method": "RegistrarReservaDeClase",
+    "RelativePath": "api/Torniquetes/reservas",
+    "HttpMethod": "POST",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "rut_usuario",
+        "Type": "System.String",
+        "IsRequired": false
+      },
+      {
+        "Name": "ip_torniquete",
+        "Type": "System.String",
+        "IsRequired": false
+      },
+      {
+        "Name": "inicio_reserva",
+        "Type": "System.DateTime",
+        "IsRequired": false
+      },
+      {
+        "Name": "fin_reserva",
+        "Type": "System.DateTime",
+        "IsRequired": false
+      }
+    ],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "API_Torniquetes.Controllers.TorniquetesController",
+    "Method": "CrearTimeZone",
+    "RelativePath": "api/Torniquetes/timezone",
+    "HttpMethod": "POST",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "ip",
+        "Type": "System.String",
+        "IsRequired": false
+      },
+      {
+        "Name": "tzIndex",
+        "Type": "System.Int32",
+        "IsRequired": false
+      },
+      {
+        "Name": "sh1",
+        "Type": "System.Int32",
+        "IsRequired": false
+      },
+      {
+        "Name": "sm1",
+        "Type": "System.Int32",
+        "IsRequired": false
+      },
+      {
+        "Name": "eh1",
+        "Type": "System.Int32",
+        "IsRequired": false
+      },
+      {
+        "Name": "em1",
+        "Type": "System.Int32",
+        "IsRequired": false
+      },
+      {
+        "Name": "sh2",
+        "Type": "System.Int32",
+        "IsRequired": false
+      },
+      {
+        "Name": "sm2",
+        "Type": "System.Int32",
+        "IsRequired": false
+      },
+      {
+        "Name": "eh2",
+        "Type": "System.Int32",
+        "IsRequired": false
+      },
+      {
+        "Name": "em2",
+        "Type": "System.Int32",
+        "IsRequired": false
+      },
+      {
+        "Name": "sh3",
+        "Type": "System.Int32",
+        "IsRequired": false
+      },
+      {
+        "Name": "sm3",
+        "Type": "System.Int32",
+        "IsRequired": false
+      },
+      {
+        "Name": "eh3",
+        "Type": "System.Int32",
+        "IsRequired": false
+      },
+      {
+        "Name": "em3",
+        "Type": "System.Int32",
+        "IsRequired": false
+      },
+      {
+        "Name": "puerto",
+        "Type": "System.Int32",
+        "IsRequired": false
+      }
+    ],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "API_Torniquetes.Controllers.TorniquetesController",
+    "Method": "ObtenerUsuarios",
+    "RelativePath": "api/Torniquetes/usuarios",
+    "HttpMethod": "GET",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "ip",
+        "Type": "System.String",
+        "IsRequired": false
+      },
+      {
+        "Name": "puerto",
+        "Type": "System.Int32",
+        "IsRequired": false
+      }
+    ],
     "ReturnTypes": [
       {
-        "Type": "System.Collections.Generic.IEnumerable\u00601[[API_Torniquetes.WeatherForecast, API Torniquetes, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null]]",
+        "Type": "System.Collections.Generic.List\u00601[[API_Torniquetes.Models.UsuarioZKTeco, API Torniquetes, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null]]",
         "MediaTypes": [
           "text/plain",
           "application/json",
@@ -49,7 +198,37 @@
         ],
         "StatusCode": 200
       }
+    ]
+  },
+  {
+    "ContainingType": "API_Torniquetes.Controllers.TorniquetesController",
+    "Method": "CambiarEstadoUsuario",
+    "RelativePath": "api/Torniquetes/usuarios/estado",
+    "HttpMethod": "POST",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "ip",
+        "Type": "System.String",
+        "IsRequired": false
+      },
+      {
+        "Name": "userId",
+        "Type": "System.String",
+        "IsRequired": false
+      },
+      {
+        "Name": "habilitar",
+        "Type": "System.Boolean",
+        "IsRequired": false
+      },
+      {
+        "Name": "puerto",
+        "Type": "System.Int32",
+        "IsRequired": false
+      }
     ],
-    "EndpointName": "GetWeatherForecast"
+    "ReturnTypes": []
   }
 ]
