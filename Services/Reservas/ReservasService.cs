@@ -5,7 +5,17 @@ namespace API_Torniquetes.Services.Reservas
 {
     public class ReservasService(IReservaRepository reservaRepository) : IReservasService
     {
-        public bool RegistrarReservaDeClase(string rutUsuario, string ipTorniquete, DateTime inicioReserva, DateTime finReserva)
+        public Reserva[] ObtenerReservasActivas(DateTime? fecha)
+        {
+            if (fecha == null)
+            {
+                fecha = DateTime.Now;
+            }
+
+            return reservaRepository.ObtenerReservasActivas((DateTime)fecha);
+        }
+
+        /*public bool RegistrarReservaDeClase(string rutUsuario, string ipTorniquete, DateTime inicioReserva, DateTime finReserva)
         {
             string[] arrayRutUsuario = rutUsuario.Split('-');
 
@@ -26,6 +36,6 @@ namespace API_Torniquetes.Services.Reservas
 
             reservaRepository.Add(reserva);
             return true;
-        }
+        }*/
     }
 }

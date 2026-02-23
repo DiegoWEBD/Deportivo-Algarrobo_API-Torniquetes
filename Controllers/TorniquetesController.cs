@@ -1,8 +1,8 @@
 ﻿using API_Torniquetes.Models;
+using API_Torniquetes.Models.Reserva;
 using API_Torniquetes.Repositories.Reservas;
 using API_Torniquetes.Services;
 using API_Torniquetes.Services.Reservas;
-using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.Mvc;
 
 namespace API_Torniquetes.Controllers
@@ -99,7 +99,15 @@ namespace API_Torniquetes.Controllers
             return Ok(resultado);
         }
 
-        [HttpPost("reservas")]
+        [HttpGet("reservas")]
+        public ActionResult<Reserva[]> ObtenerReservasActivas(DateTime? fecha)
+        {
+            Reserva[] reservas = reservasService.ObtenerReservasActivas(fecha);
+
+            return Ok(reservas);
+        }
+
+        /*[HttpPost("reservas")]
         public ActionResult RegistrarReservaDeClase(string rut_usuario, string ip_torniquete, DateTime inicio_reserva, DateTime fin_reserva)
         {
             try
@@ -115,6 +123,6 @@ namespace API_Torniquetes.Controllers
                     mensaje = ex.Message
                 });
             }
-        }
+        }*/
     }
 }

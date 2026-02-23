@@ -4,6 +4,7 @@ namespace API_Torniquetes.Repositories.Reservas
 {
     public interface IReservaRepository
     {
-        Reserva Add(Reserva reserva);
+        //Reserva Add(Reserva reserva);
+        Reserva[] ObtenerReservasActivas(DateTime fecha);
     }
 }

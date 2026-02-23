@@ -24,7 +24,8 @@
             "in": "query",
             "schema": {
               "type": "integer",
-              "format": "int32"
+              "format": "int32",
+              "default": 4370
             }
           }
         ],
@@ -52,12 +53,29 @@
         }
       }
     },
-    "/WeatherForecast": {
+    "/api/Torniquetes/usuarios": {
       "get": {
         "tags": [
-          "WeatherForecast"
+          "Torniquetes"
         ],
-        "operationId": "GetWeatherForecast",
+        "parameters": [
+          {
+            "name": "ip",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "puerto",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "format": "int32",
+              "default": 4370
+            }
+          }
+        ],
         "responses": {
           "200": {
             "description": "OK",
@@ -66,7 +84,7 @@
                 "schema": {
                   "type": "array",
                   "items": {
-                    "$ref": "#/components/schemas/WeatherForecast"
+                    "$ref": "#/components/schemas/UsuarioZKTeco"
                   }
                 }
               },
@@ -74,7 +92,7 @@
                 "schema": {
                   "type": "array",
                   "items": {
-                    "$ref": "#/components/schemas/WeatherForecast"
+                    "$ref": "#/components/schemas/UsuarioZKTeco"
                   }
                 }
               },
@@ -82,7 +100,7 @@
                 "schema": {
                   "type": "array",
                   "items": {
-                    "$ref": "#/components/schemas/WeatherForecast"
+                    "$ref": "#/components/schemas/UsuarioZKTeco"
                   }
                 }
               }
@@ -90,29 +108,157 @@
           }
         }
       }
+    },
+    "/api/Torniquetes/usuarios/estado": {
+      "post": {
+        "tags": [
+          "Torniquetes"
+        ],
+        "parameters": [
+          {
+            "name": "ip",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "userId",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "habilitar",
+            "in": "query",
+            "schema": {
+              "type": "boolean"
+            }
+          },
+          {
+            "name": "puerto",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "format": "int32",
+              "default": 4370
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/api/Torniquetes/usuarios/{userId}": {
+      "get": {
+        "tags": [
+          "Torniquetes"
+        ],
+        "parameters": [
+          {
+            "name": "userId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/UsuarioZKTeco"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/UsuarioZKTeco"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/UsuarioZKTeco"
+                }
+              }
+            }
+          }
+        }
+      },
+      "put": {
+        "tags": [
+          "Torniquetes"
+        ],
+        "parameters": [
+          {
+            "name": "userId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "ip",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "nombre",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "puerto",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "format": "int32",
+              "default": 4370
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
     }
   },
   "components": {
     "schemas": {
-      "WeatherForecast": {
+      "UsuarioZKTeco": {
         "type": "object",
         "properties": {
-          "date": {
+          "userID": {
             "type": "string",
-            "format": "date"
+            "nullable": true
           },
-          "temperatureC": {
+          "nombre": {
+            "type": "string",
+            "nullable": true
+          },
+          "password": {
+            "type": "string",
+            "nullable": true
+          },
+          "privilegio": {
             "type": "integer",
             "format": "int32"
           },
-          "temperatureF": {
-            "type": "integer",
-            "format": "int32",
-            "readOnly": true
-          },
-          "summary": {
-            "type": "string",
-            "nullable": true
+          "habilitado": {
+            "type": "boolean"
           }
         },
         "additionalProperties": false
@@ -122,9 +268,6 @@
   "tags": [
     {
       "name": "Torniquetes"
-    },
-    {
-      "name": "WeatherForecast"
     }
   ]
 }
