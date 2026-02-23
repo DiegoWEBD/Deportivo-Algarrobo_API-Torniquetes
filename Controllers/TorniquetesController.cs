@@ -11,13 +11,20 @@ namespace API_Torniquetes.Controllers
     [ApiController]
     public class TorniquetesController : ControllerBase
     {
-        IZKTecoService zKTecoService = new ZKTecoService();
+        private readonly IZKTecoService zKTecoService;
         private readonly IReservasService reservasService;
+        private const int PUERTO = 4370;
+        private readonly Dictionary<string, string> IP_TORNIQUETES = new Dictionary<string, string>
+        {
+            { "ENROLADOR", "192.168.1.7" },
+            { "GIMNASIO", "192.168.1.8" },
+        };
 
         public TorniquetesController()
         {
             IReservaRepository reservaRepository = new ReservaRepository();
             this.reservasService = new ReservasService(reservaRepository);
+            this.zKTecoService = new ZKTecoService();
         }
 
         [HttpPost(Name = "Conectar")]
@@ -56,45 +63,40 @@ namespace API_Torniquetes.Controllers
             return Ok(resultado);
         }
 
-        [HttpPost("timezone")]
-        public ActionResult CrearTimeZone(
-            string ip,
-            int tzIndex,
-            int sh1, int sm1, int eh1, int em1,
-            int sh2, int sm2, int eh2, int em2,
-            int sh3, int sm3, int eh3, int em3,
-            int puerto = 4370
-        )
+        [HttpGet("usuarios/{userId}")]
+        public ActionResult<UsuarioZKTeco> ObtenerUsuarioPorId(string userId)
         {
-            var conexion = zKTecoService.Conectar(ip, puerto);
+            var conexion = zKTecoService.Conectar(IP_TORNIQUETES["ENROLADOR"], PUERTO);
 
             if (!conexion.Contains("Conectado"))
                 return BadRequest(conexion);
 
-            var resultado = zKTecoService.CrearTimeZone(
-                tzIndex,
-                sh1, sm1, eh1, em1,
-                sh2, sm2, eh2, em2,
-                sh3, sm3, eh3, em3);
+            var usuario = zKTecoService.ObtenerUsuarioPorId(userId);
 
             zKTecoService.Desconectar();
 
-            return Ok(resultado);
+            if (usuario == null)
+                return NotFound("Usuario no encontrado");
+
+            return Ok(usuario);
         }
 
-        [HttpGet("marcajes")]
-        public ActionResult ObtenerMarcajes(string ip, int puerto = 4370)
+        [HttpPut("usuarios/{userId}")]
+        public ActionResult ActualizarNombreUsuario(string userId, string ip, string nombre, int puerto = 4370)
         {
             var conexion = zKTecoService.Conectar(ip, puerto);
 
             if (!conexion.Contains("Conectado"))
                 return BadRequest(conexion);
 
-            var marcajes = zKTecoService.ObtenerMarcajes();
+            var resultado = zKTecoService.ActualizarNombreUsuario(userId, nombre);
 
             zKTecoService.Desconectar();
 
-            return Ok(marcajes);
+            if (resultado.Contains("Error"))
+                return BadRequest(resultado);
+
+            return Ok(resultado);
         }
 
         [HttpPost("reservas")]

@@ -33,27 +33,6 @@
   },
   {
     "ContainingType": "API_Torniquetes.Controllers.TorniquetesController",
-    "Method": "ObtenerMarcajes",
-    "RelativePath": "api/Torniquetes/marcajes",
-    "HttpMethod": "GET",
-    "IsController": true,
-    "Order": 0,
-    "Parameters": [
-      {
-        "Name": "ip",
-        "Type": "System.String",
-        "IsRequired": false
-      },
-      {
-        "Name": "puerto",
-        "Type": "System.Int32",
-        "IsRequired": false
-      }
-    ],
-    "ReturnTypes": []
-  },
-  {
-    "ContainingType": "API_Torniquetes.Controllers.TorniquetesController",
     "Method": "RegistrarReservaDeClase",
     "RelativePath": "api/Torniquetes/reservas",
     "HttpMethod": "POST",
@@ -78,92 +57,6 @@
       {
         "Name": "fin_reserva",
         "Type": "System.DateTime",
-        "IsRequired": false
-      }
-    ],
-    "ReturnTypes": []
-  },
-  {
-    "ContainingType": "API_Torniquetes.Controllers.TorniquetesController",
-    "Method": "CrearTimeZone",
-    "RelativePath": "api/Torniquetes/timezone",
-    "HttpMethod": "POST",
-    "IsController": true,
-    "Order": 0,
-    "Parameters": [
-      {
-        "Name": "ip",
-        "Type": "System.String",
-        "IsRequired": false
-      },
-      {
-        "Name": "tzIndex",
-        "Type": "System.Int32",
-        "IsRequired": false
-      },
-      {
-        "Name": "sh1",
-        "Type": "System.Int32",
-        "IsRequired": false
-      },
-      {
-        "Name": "sm1",
-        "Type": "System.Int32",
-        "IsRequired": false
-      },
-      {
-        "Name": "eh1",
-        "Type": "System.Int32",
-        "IsRequired": false
-      },
-      {
-        "Name": "em1",
-        "Type": "System.Int32",
-        "IsRequired": false
-      },
-      {
-        "Name": "sh2",
-        "Type": "System.Int32",
-        "IsRequired": false
-      },
-      {
-        "Name": "sm2",
-        "Type": "System.Int32",
-        "IsRequired": false
-      },
-      {
-        "Name": "eh2",
-        "Type": "System.Int32",
-        "IsRequired": false
-      },
-      {
-        "Name": "em2",
-        "Type": "System.Int32",
-        "IsRequired": false
-      },
-      {
-        "Name": "sh3",
-        "Type": "System.Int32",
-        "IsRequired": false
-      },
-      {
-        "Name": "sm3",
-        "Type": "System.Int32",
-        "IsRequired": false
-      },
-      {
-        "Name": "eh3",
-        "Type": "System.Int32",
-        "IsRequired": false
-      },
-      {
-        "Name": "em3",
-        "Type": "System.Int32",
-        "IsRequired": false
-      },
-      {
-        "Name": "puerto",
-        "Type": "System.Int32",
         "IsRequired": false
       }
     ],
@@ -199,6 +92,63 @@
         "StatusCode": 200
       }
     ]
+  },
+  {
+    "ContainingType": "API_Torniquetes.Controllers.TorniquetesController",
+    "Method": "ObtenerUsuarioPorId",
+    "RelativePath": "api/Torniquetes/usuarios/{userId}",
+    "HttpMethod": "GET",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "userId",
+        "Type": "System.String",
+        "IsRequired": true
+      }
+    ],
+    "ReturnTypes": [
+      {
+        "Type": "API_Torniquetes.Models.UsuarioZKTeco",
+        "MediaTypes": [
+          "text/plain",
+          "application/json",
+          "text/json"
+        ],
+        "StatusCode": 200
+      }
+    ]
+  },
+  {
+    "ContainingType": "API_Torniquetes.Controllers.TorniquetesController",
+    "Method": "ActualizarNombreUsuario",
+    "RelativePath": "api/Torniquetes/usuarios/{userId}",
+    "HttpMethod": "PUT",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "userId",
+        "Type": "System.String",
+        "IsRequired": true
+      },
+      {
+        "Name": "ip",
+        "Type": "System.String",
+        "IsRequired": false
+      },
+      {
+        "Name": "nombre",
+        "Type": "System.String",
+        "IsRequired": false
+      },
+      {
+        "Name": "puerto",
+        "Type": "System.Int32",
+        "IsRequired": false
+      }
+    ],
+    "ReturnTypes": []
   },
   {
     "ContainingType": "API_Torniquetes.Controllers.TorniquetesController",
