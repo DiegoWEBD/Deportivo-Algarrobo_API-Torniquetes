@@ -166,6 +166,13 @@
             "schema": {
               "type": "string"
             }
+          },
+          {
+            "name": "ip",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
           }
         ],
         "responses": {
@@ -235,40 +242,140 @@
         }
       }
     },
-    "/api/Torniquetes/reservas": {
+    "/api/Torniquetes/usuarios/{userId}/copiar": {
       "post": {
         "tags": [
           "Torniquetes"
         ],
         "parameters": [
           {
-            "name": "rut_usuario",
+            "name": "ipOrigen",
             "in": "query",
             "schema": {
               "type": "string"
             }
           },
           {
-            "name": "ip_torniquete",
+            "name": "ipDestino",
             "in": "query",
             "schema": {
               "type": "string"
             }
           },
           {
-            "name": "inicio_reserva",
+            "name": "userId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/api/Torniquetes/reservas": {
+      "get": {
+        "tags": [
+          "Torniquetes"
+        ],
+        "parameters": [
+          {
+            "name": "fecha",
             "in": "query",
             "schema": {
               "type": "string",
               "format": "date-time"
             }
-          },
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/Reserva"
+                  }
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/Reserva"
+                  }
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/Reserva"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/Torniquetes/firmware": {
+      "get": {
+        "tags": [
+          "Torniquetes"
+        ],
+        "parameters": [
           {
-            "name": "fin_reserva",
+            "name": "ip",
             "in": "query",
             "schema": {
-              "type": "string",
-              "format": "date-time"
+              "type": "string"
+            }
+          },
+          {
+            "name": "puerto",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "format": "int32",
+              "default": 4370
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/api/Torniquetes/algoritmo": {
+      "get": {
+        "tags": [
+          "Torniquetes"
+        ],
+        "parameters": [
+          {
+            "name": "ip",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "puerto",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "format": "int32",
+              "default": 4370
             }
           }
         ],
@@ -282,6 +389,32 @@
   },
   "components": {
     "schemas": {
+      "Reserva": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "idUsuario": {
+            "type": "string",
+            "nullable": true
+          },
+          "nombreSala": {
+            "type": "string",
+            "nullable": true
+          },
+          "inicioReserva": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "finReserva": {
+            "type": "string",
+            "format": "date-time"
+          }
+        },
+        "additionalProperties": false
+      },
       "UsuarioZKTeco": {
         "type": "object",
         "properties": {

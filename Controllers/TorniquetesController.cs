@@ -4,6 +4,7 @@ using API_Torniquetes.Repositories.Reservas;
 using API_Torniquetes.Services;
 using API_Torniquetes.Services.Reservas;
 using Microsoft.AspNetCore.Mvc;
+using static System.Runtime.InteropServices.JavaScript.JSType;
 
 namespace API_Torniquetes.Controllers
 {
@@ -64,9 +65,9 @@ namespace API_Torniquetes.Controllers
         }
 
         [HttpGet("usuarios/{userId}")]
-        public ActionResult<UsuarioZKTeco> ObtenerUsuarioPorId(string userId)
+        public ActionResult<UsuarioZKTeco> ObtenerUsuarioPorId(string userId, string ip)
         {
-            var conexion = zKTecoService.Conectar(IP_TORNIQUETES["ENROLADOR"], PUERTO);
+            var conexion = zKTecoService.Conectar(ip, PUERTO);
 
             if (!conexion.Contains("Conectado"))
                 return BadRequest(conexion);
@@ -99,12 +100,67 @@ namespace API_Torniquetes.Controllers
             return Ok(resultado);
         }
 
+        [HttpPost("usuarios/{userId}/copiar")]
+        public ActionResult CopiarUsuarioConHuellas(string ipOrigen, string ipDestino, string userId)
+        {
+            var resultado = zKTecoService.CopiarUsuarioConHuellas(ipOrigen, ipDestino, userId);
+
+            if (resultado.Contains("Error"))
+                return BadRequest(resultado);
+
+            return Ok(resultado);
+        }
+
         [HttpGet("reservas")]
         public ActionResult<Reserva[]> ObtenerReservasActivas(DateTime? fecha)
         {
             Reserva[] reservas = reservasService.ObtenerReservasActivas(fecha);
 
             return Ok(reservas);
+        }
+
+        [HttpGet("firmware")]
+        public ActionResult ObtenerFirmware(string ip, int puerto = 4370)
+        {
+            var conexion = zKTecoService.Conectar(ip, puerto);
+
+            if (!conexion.Contains("Conectado"))
+                return BadRequest(conexion);
+
+            var firmware = zKTecoService.ObtenerFirmware();
+
+            zKTecoService.Desconectar();
+
+            if (firmware.Contains("Error"))
+                return BadRequest(firmware);
+
+            return Ok(new
+            {
+                ip,
+                firmware
+            });
+        }
+
+        [HttpGet("algoritmo")]
+        public ActionResult ObtenerAlgoritmo(string ip, int puerto = 4370)
+        {
+            var conexion = zKTecoService.Conectar(ip, puerto);
+
+            if (!conexion.Contains("Conectado"))
+                return BadRequest(conexion);
+
+            var algoritmo = zKTecoService.ObtenerAlgoritmoBiometrico();
+
+            zKTecoService.Desconectar();
+
+            if (algoritmo.Contains("Error"))
+                return BadRequest(algoritmo);
+
+            return Ok(new
+            {
+                ip,
+                algoritmo
+            });
         }
 
         /*[HttpPost("reservas")]

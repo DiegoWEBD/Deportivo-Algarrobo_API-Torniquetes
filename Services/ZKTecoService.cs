@@ -60,8 +60,16 @@ namespace API_Torniquetes.Services
 
         public string CambiarEstadoUsuario(string userId, bool habilitar)
         {
-            if (!zk.ReadAllUserID(1))
-                return "No se pudieron leer los usuarios";
+            // Deshabilitar dispositivo
+            if (!zk.EnableDevice(1, false))
+                return "No se pudo deshabilitar el equipo";
+
+            // Cargar usuarios y templates
+            if (!zk.ReadAllUserID(1) || !zk.ReadAllTemplate(1))
+            {
+                zk.EnableDevice(1, true);
+                return "No se pudieron leer los datos del equipo";
+            }
 
             zk.RefreshData(1);
 
@@ -71,19 +79,35 @@ namespace API_Torniquetes.Services
             bool enabled = false;
 
             if (!zk.SSR_GetUserInfo(1, userId, out name, out password, out privilege, out enabled))
+            {
+                zk.EnableDevice(1, true);
                 return "Usuario no encontrado";
+            }
 
-            bool resultado = zk.SSR_SetUserInfo(1, userId, name, password, privilege, habilitar);
+            // Mantener exactamente los mismos datos
+            bool resultado = zk.SSR_SetUserInfo(
+                1,
+                userId,
+                name,
+                password ?? "",
+                privilege,
+                habilitar
+            );
 
             if (!resultado)
             {
                 int error = 0;
                 zk.GetLastError(ref error);
+                zk.EnableDevice(1, true);
                 return $"Error al actualizar usuario: {error}";
             }
 
             zk.RefreshData(1);
-            return habilitar ? "Usuario habilitado correctamente" : "Usuario deshabilitado correctamente";
+            zk.EnableDevice(1, true);
+
+            return habilitar
+                ? "Usuario habilitado correctamente"
+                : "Usuario deshabilitado correctamente";
         }
 
         public UsuarioZKTeco? ObtenerUsuarioPorId(string userId)
@@ -97,7 +121,7 @@ namespace API_Torniquetes.Services
             string password = string.Empty;
             int privilege = 0;
             bool enabled = false;
-
+            
             if (!zk.SSR_GetUserInfo(1, userId, out name, out password, out privilege, out enabled))
                 return null;
 
@@ -134,5 +158,130 @@ namespace API_Torniquetes.Services
             zk.RefreshData(1);
             return "Usuario actualizado correctamente";
         }
+
+        public string CopiarUsuarioConHuellas(string ipOrigen, string ipDestino, string userId)
+        {
+            if (Conectar(ipOrigen).StartsWith("Error"))
+                return "No se pudo conectar al equipo origen";
+
+            var usuario = ObtenerUsuarioPorId(userId);
+
+            if (usuario == null)
+            {
+                Desconectar();
+                return "Usuario no existe en equipo origen";
+            }
+
+            zk.ReadAllTemplate(1);
+
+            var huellas = new List<(int fingerIndex, string template)>();
+
+            string templateData;
+            int templateLength;
+
+            for (int fingerIndex = 0; fingerIndex <= 9; fingerIndex++)
+            {
+                if (zk.SSR_GetUserTmpStr(1, userId, fingerIndex, out templateData, out templateLength))
+                {
+                    huellas.Add((fingerIndex, templateData));
+                }
+            }
+
+            Desconectar();
+
+            if (Conectar(ipDestino).StartsWith("Error"))
+                return "No se pudo conectar al equipo destino";
+
+            zk.ReadAllUserID(1);
+            zk.ReadAllTemplate(1);
+            zk.EnableDevice(1, false);
+
+            // Crear usuario
+            bool creado = zk.SSR_SetUserInfo(
+                1,
+                usuario.UserID,
+                usuario.Nombre,
+                usuario.Password,
+                usuario.Privilegio,
+                usuario.Habilitado
+            );
+
+            if (!creado)
+            {
+                int error = 0;
+                zk.GetLastError(ref error);
+                zk.EnableDevice(1, true);
+                zk.RefreshData(1);
+                Desconectar();
+                return $"Error creando usuario destino: {error}";
+            }
+
+            zk.RefreshData(1);
+
+            foreach (var huella in huellas)
+            {
+                //zk.SSR_DelUserTmpExt(1, userId, huella.fingerIndex);
+                byte[] templateBytes = Convert.FromBase64String(huella.template);
+
+                bool huellaInsertada = zk.SSR_SetUserTmpExt(
+                    1,
+                    0,
+                    userId,
+                    huella.fingerIndex,
+                    ref templateBytes[0]
+                );
+
+                if (!huellaInsertada)
+                {
+                    int error = 0;
+                    zk.GetLastError(ref error);
+                    zk.EnableDevice(1, true);
+                    zk.RefreshData(1);
+                    Desconectar();
+
+                    var detalleHuellas = string.Join(" | ",
+                        huellas.Select(h =>
+                            $"Dedo:{h.fingerIndex}, Largo:{h.template?.Length}, Template:{h.template}")
+                    );
+
+                    return $"Error copiando dedo {huella.fingerIndex}: {error}. Huellas: {detalleHuellas}";
+                }
+            }
+
+            zk.EnableDevice(1, true);
+            zk.RefreshData(1);
+            Desconectar();
+
+            return "Usuario y huellas copiadas correctamente";
+        }
+
+        public string ObtenerFirmware()
+        {
+            string version = string.Empty;
+
+            if (!zk.GetFirmwareVersion(1, ref version))
+            {
+                int error = 0;
+                zk.GetLastError(ref error);
+                return $"Error obteniendo firmware: {error}";
+            }
+
+            return version;
+        }
+
+        public string ObtenerAlgoritmoBiometrico()
+        {
+            string version = string.Empty;
+
+            if (!zk.GetSysOption(1, "ZKFPVersion", out version))
+            {
+                int error = 0;
+                zk.GetLastError(ref error);
+                return $"Error obteniendo algoritmo: {error}";
+            }
+
+            return version;
+        }
+
     }
 }

@@ -10,5 +10,8 @@ namespace API_Torniquetes.Services
         string CambiarEstadoUsuario(string userId, bool habilitar);
         UsuarioZKTeco? ObtenerUsuarioPorId(string userId);
         string ActualizarNombreUsuario(string userId, string nombre);
+        string CopiarUsuarioConHuellas(string ipOrigen, string ipDestino, string userId);
+        string ObtenerFirmware();
+        string ObtenerAlgoritmoBiometrico();
     }
 }

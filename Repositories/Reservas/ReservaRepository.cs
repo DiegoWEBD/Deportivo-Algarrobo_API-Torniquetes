@@ -7,7 +7,7 @@ namespace API_Torniquetes.Repositories.Reservas
     public class ReservaRepository : IReservaRepository
     {
         //private readonly string dbConnectionString = "Server=localhost\\SQLEXPRESS;Database=Torniquetes_Permisos;Trusted_Connection=True;TrustServerCertificate=True;";
-        private readonly string dbConnectionString = "Data Source = 201.148.104.16; Initial Catalog = reservas_Algarrobo_v2; User Id = reservas_admin_redysolutions; Password=cX970htvSk";
+        private readonly string dbConnectionString = "Server = 201.148.104.16; Database = reservas_Algarrobo_v2; User Id = reservas_admin_redysolutions; Password=cX970htvSk; TrustServerCertificate=True;";
 
         /*public Reserva Add(Reserva reserva)
         {

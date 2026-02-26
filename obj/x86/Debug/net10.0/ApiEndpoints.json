@@ -33,34 +33,71 @@
   },
   {
     "ContainingType": "API_Torniquetes.Controllers.TorniquetesController",
-    "Method": "RegistrarReservaDeClase",
-    "RelativePath": "api/Torniquetes/reservas",
-    "HttpMethod": "POST",
+    "Method": "ObtenerAlgoritmo",
+    "RelativePath": "api/Torniquetes/algoritmo",
+    "HttpMethod": "GET",
     "IsController": true,
     "Order": 0,
     "Parameters": [
       {
-        "Name": "rut_usuario",
+        "Name": "ip",
         "Type": "System.String",
         "IsRequired": false
       },
       {
-        "Name": "ip_torniquete",
-        "Type": "System.String",
-        "IsRequired": false
-      },
-      {
-        "Name": "inicio_reserva",
-        "Type": "System.DateTime",
-        "IsRequired": false
-      },
-      {
-        "Name": "fin_reserva",
-        "Type": "System.DateTime",
+        "Name": "puerto",
+        "Type": "System.Int32",
         "IsRequired": false
       }
     ],
     "ReturnTypes": []
+  },
+  {
+    "ContainingType": "API_Torniquetes.Controllers.TorniquetesController",
+    "Method": "ObtenerFirmware",
+    "RelativePath": "api/Torniquetes/firmware",
+    "HttpMethod": "GET",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "ip",
+        "Type": "System.String",
+        "IsRequired": false
+      },
+      {
+        "Name": "puerto",
+        "Type": "System.Int32",
+        "IsRequired": false
+      }
+    ],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "API_Torniquetes.Controllers.TorniquetesController",
+    "Method": "ObtenerReservasActivas",
+    "RelativePath": "api/Torniquetes/reservas",
+    "HttpMethod": "GET",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "fecha",
+        "Type": "System.Nullable\u00601[[System.DateTime, System.Private.CoreLib, Version=10.0.0.0, Culture=neutral, PublicKeyToken=7cec85d7bea7798e]]",
+        "IsRequired": false
+      }
+    ],
+    "ReturnTypes": [
+      {
+        "Type": "API_Torniquetes.Models.Reserva.Reserva[]",
+        "MediaTypes": [
+          "text/plain",
+          "application/json",
+          "text/json"
+        ],
+        "StatusCode": 200
+      }
+    ]
   },
   {
     "ContainingType": "API_Torniquetes.Controllers.TorniquetesController",
@@ -105,6 +142,11 @@
         "Name": "userId",
         "Type": "System.String",
         "IsRequired": true
+      },
+      {
+        "Name": "ip",
+        "Type": "System.String",
+        "IsRequired": false
       }
     ],
     "ReturnTypes": [
@@ -146,6 +188,32 @@
         "Name": "puerto",
         "Type": "System.Int32",
         "IsRequired": false
+      }
+    ],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "API_Torniquetes.Controllers.TorniquetesController",
+    "Method": "CopiarUsuarioConHuellas",
+    "RelativePath": "api/Torniquetes/usuarios/{userId}/copiar",
+    "HttpMethod": "POST",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "ipOrigen",
+        "Type": "System.String",
+        "IsRequired": false
+      },
+      {
+        "Name": "ipDestino",
+        "Type": "System.String",
+        "IsRequired": false
+      },
+      {
+        "Name": "userId",
+        "Type": "System.String",
+        "IsRequired": true
       }
     ],
     "ReturnTypes": []
