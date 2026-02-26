@@ -161,18 +161,20 @@ namespace API_Torniquetes.Services
 
         public string CopiarUsuarioConHuellas(string ipOrigen, string ipDestino, string userId)
         {
+            // ---------- ORIGEN ----------
             if (Conectar(ipOrigen).StartsWith("Error"))
                 return "No se pudo conectar al equipo origen";
 
             var usuario = ObtenerUsuarioPorId(userId);
-
             if (usuario == null)
             {
                 Desconectar();
                 return "Usuario no existe en equipo origen";
             }
 
+            zk.EnableDevice(1, false);
             zk.ReadAllTemplate(1);
+            zk.RefreshData(1);
 
             var huellas = new List<(int fingerIndex, string template)>();
 
@@ -187,22 +189,30 @@ namespace API_Torniquetes.Services
                 }
             }
 
+            zk.EnableDevice(1, true);
             Desconectar();
 
+            // ---------- DESTINO ----------
             if (Conectar(ipDestino).StartsWith("Error"))
                 return "No se pudo conectar al equipo destino";
 
-            zk.ReadAllUserID(1);
-            zk.ReadAllTemplate(1);
             zk.EnableDevice(1, false);
 
-            // Crear usuario
+            if (!zk.ReadAllUserID(1) || !zk.ReadAllTemplate(1))
+            {
+                zk.EnableDevice(1, true);
+                Desconectar();
+                return "No se pudieron leer datos destino";
+            }
+
+            zk.RefreshData(1);
+
             bool creado = zk.SSR_SetUserInfo(
                 1,
                 usuario.UserID,
                 usuario.Nombre,
-                usuario.Password,
-                usuario.Privilegio,
+                usuario.Password ?? "",
+                usuario.Privilegio < 0 ? 0 : usuario.Privilegio,
                 usuario.Habilitado
             );
 
@@ -211,7 +221,6 @@ namespace API_Torniquetes.Services
                 int error = 0;
                 zk.GetLastError(ref error);
                 zk.EnableDevice(1, true);
-                zk.RefreshData(1);
                 Desconectar();
                 return $"Error creando usuario destino: {error}";
             }
@@ -220,15 +229,11 @@ namespace API_Torniquetes.Services
 
             foreach (var huella in huellas)
             {
-                //zk.SSR_DelUserTmpExt(1, userId, huella.fingerIndex);
-                byte[] templateBytes = Convert.FromBase64String(huella.template);
-
-                bool huellaInsertada = zk.SSR_SetUserTmpExt(
+                bool huellaInsertada = zk.SSR_SetUserTmpStr(
                     1,
-                    0,
                     userId,
                     huella.fingerIndex,
-                    ref templateBytes[0]
+                    huella.template
                 );
 
                 if (!huellaInsertada)
@@ -236,20 +241,13 @@ namespace API_Torniquetes.Services
                     int error = 0;
                     zk.GetLastError(ref error);
                     zk.EnableDevice(1, true);
-                    zk.RefreshData(1);
                     Desconectar();
-
-                    var detalleHuellas = string.Join(" | ",
-                        huellas.Select(h =>
-                            $"Dedo:{h.fingerIndex}, Largo:{h.template?.Length}, Template:{h.template}")
-                    );
-
-                    return $"Error copiando dedo {huella.fingerIndex}: {error}. Huellas: {detalleHuellas}";
+                    return $"Error copiando dedo {huella.fingerIndex}: {error}";
                 }
             }
 
-            zk.EnableDevice(1, true);
             zk.RefreshData(1);
+            zk.EnableDevice(1, true);
             Desconectar();
 
             return "Usuario y huellas copiadas correctamente";
