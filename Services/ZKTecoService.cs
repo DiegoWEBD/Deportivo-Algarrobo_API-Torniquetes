@@ -58,48 +58,35 @@ namespace API_Torniquetes.Services
             zk.Disconnect();
         }
 
+
         public string CambiarEstadoUsuario(string userId, bool habilitar)
         {
-            // Deshabilitar dispositivo
+            const int grupoUsuariosHabilitados = 1;
+            const int grupoUsuariosDeshabilitados = 2;
+            int grupo = habilitar ? grupoUsuariosHabilitados : grupoUsuariosDeshabilitados;
+
+            // Deshabilitar equipo temporalmente
             if (!zk.EnableDevice(1, false))
                 return "No se pudo deshabilitar el equipo";
 
-            // Cargar usuarios y templates
-            if (!zk.ReadAllUserID(1) || !zk.ReadAllTemplate(1))
+            // Cargar usuarios
+            if (!zk.ReadAllUserID(1))
             {
                 zk.EnableDevice(1, true);
-                return "No se pudieron leer los datos del equipo";
+                return "No se pudieron leer los usuarios";
             }
 
             zk.RefreshData(1);
 
-            string name = string.Empty;
-            string password = string.Empty;
-            int privilege = 0;
-            bool enabled = false;
-
-            if (!zk.SSR_GetUserInfo(1, userId, out name, out password, out privilege, out enabled))
-            {
-                zk.EnableDevice(1, true);
-                return "Usuario no encontrado";
-            }
-
-            // Mantener exactamente los mismos datos
-            bool resultado = zk.SSR_SetUserInfo(
-                1,
-                userId,
-                name,
-                password ?? "",
-                privilege,
-                habilitar
-            );
+            // Cambiar grupo
+            bool resultado = zk.SetUserGroup(1, int.Parse(userId), grupo);
 
             if (!resultado)
             {
                 int error = 0;
                 zk.GetLastError(ref error);
                 zk.EnableDevice(1, true);
-                return $"Error al actualizar usuario: {error}";
+                return $"Error al cambiar estado del usuario: {error}";
             }
 
             zk.RefreshData(1);
@@ -125,13 +112,19 @@ namespace API_Torniquetes.Services
             if (!zk.SSR_GetUserInfo(1, userId, out name, out password, out privilege, out enabled))
                 return null;
 
+            int grupoActual = 0;
+
+            if (!zk.GetUserGroup(1, int.Parse(userId), ref grupoActual))
+                return null;
+
             return new UsuarioZKTeco
             {
                 UserID = userId,
                 Nombre = name.Trim('\0').Trim(),
                 Password = password,
                 Privilegio = privilege,
-                Habilitado = enabled
+                Habilitado = enabled,
+                Grupo = grupoActual
             };
         }
 
