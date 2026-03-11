@@ -101,6 +101,38 @@
   },
   {
     "ContainingType": "API_Torniquetes.Controllers.TorniquetesController",
+    "Method": "RegistrarReservaDeClase",
+    "RelativePath": "api/Torniquetes/reservas",
+    "HttpMethod": "POST",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "request",
+        "Type": "API_Torniquetes.Models.Reserva.RegistrarReservaRequest",
+        "IsRequired": true
+      }
+    ],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "API_Torniquetes.Controllers.TorniquetesController",
+    "Method": "SincronizarUsuariosTorniqueteBD",
+    "RelativePath": "api/Torniquetes/sincronizar",
+    "HttpMethod": "GET",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "ip",
+        "Type": "System.String",
+        "IsRequired": false
+      }
+    ],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "API_Torniquetes.Controllers.TorniquetesController",
     "Method": "ObtenerUsuarios",
     "RelativePath": "api/Torniquetes/usuarios",
     "HttpMethod": "GET",
@@ -248,5 +280,25 @@
       }
     ],
     "ReturnTypes": []
+  },
+  {
+    "ContainingType": "API_Torniquetes.Controllers.TorniquetesController",
+    "Method": "ObtenerUsuariosConNuevoEstado",
+    "RelativePath": "api/Torniquetes/usuarios/nuevo-estado",
+    "HttpMethod": "GET",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [],
+    "ReturnTypes": [
+      {
+        "Type": "System.Collections.Generic.List\u00601[[API_Torniquetes.Models.UsuarioZKTeco, API Torniquetes, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null]]",
+        "MediaTypes": [
+          "text/plain",
+          "application/json",
+          "text/json"
+        ],
+        "StatusCode": 200
+      }
+    ]
   }
 ]

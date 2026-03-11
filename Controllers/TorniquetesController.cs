@@ -1,10 +1,8 @@
 ﻿using API_Torniquetes.Models;
 using API_Torniquetes.Models.Reserva;
-using API_Torniquetes.Repositories.Reservas;
 using API_Torniquetes.Services;
 using API_Torniquetes.Services.Reservas;
 using Microsoft.AspNetCore.Mvc;
-using static System.Runtime.InteropServices.JavaScript.JSType;
 
 namespace API_Torniquetes.Controllers
 {
@@ -12,31 +10,29 @@ namespace API_Torniquetes.Controllers
     [ApiController]
     public class TorniquetesController : ControllerBase
     {
-        private readonly IZKTecoService zKTecoService;
-        private readonly IReservasService reservasService;
+        private readonly IServiceScopeFactory scopeFactory;
         private const int PUERTO = 4370;
-        private readonly Dictionary<string, string> IP_TORNIQUETES = new Dictionary<string, string>
-        {
-            { "ENROLADOR", "192.168.1.7" },
-            { "GIMNASIO", "192.168.1.8" },
-        };
 
-        public TorniquetesController()
+        public TorniquetesController(IServiceScopeFactory scopeFactory)
         {
-            IReservaRepository reservaRepository = new ReservaRepository();
-            this.reservasService = new ReservasService(reservaRepository);
-            this.zKTecoService = new ZKTecoService();
+            this.scopeFactory = scopeFactory;
         }
 
         [HttpPost(Name = "Conectar")]
         public string Conectar(string ip, int puerto = 4370)
         {
+            using var scope = scopeFactory.CreateScope();
+            var zKTecoService = scope.ServiceProvider.GetRequiredService<IZKTecoService>();
+
             return zKTecoService.Conectar(ip, puerto);
         }
 
         [HttpGet("usuarios")]
         public ActionResult<List<UsuarioZKTeco>> ObtenerUsuarios(string ip, int puerto = 4370)
         {
+            using var scope = scopeFactory.CreateScope();
+            var zKTecoService = scope.ServiceProvider.GetRequiredService<IZKTecoService>();
+
             var conexion = zKTecoService.Conectar(ip, puerto);
 
             if (!conexion.Contains("Conectado"))
@@ -49,17 +45,31 @@ namespace API_Torniquetes.Controllers
             return Ok(usuarios);
         }
 
+        [HttpGet("usuarios/nuevo-estado")]
+        public ActionResult<List<UsuarioZKTeco>> ObtenerUsuariosConNuevoEstado()
+        {
+            using var scope = scopeFactory.CreateScope();
+            var reservasService = scope.ServiceProvider.GetRequiredService<IReservasService>();
+
+            var usuarios = reservasService.ObtenerUsuariosConNuevoEstado();
+
+            return Ok(usuarios);
+        }
+
         [HttpPost("usuarios/estado")]
         public ActionResult CambiarEstadoUsuario(string ip, string userId, bool habilitar, int puerto = 4370)
         {
-            var conexion = zKTecoService.Conectar(ip, puerto);
+            using var scope = scopeFactory.CreateScope();
+            var zktecoService = scope.ServiceProvider.GetRequiredService<IZKTecoService>();
+
+            var conexion = zktecoService.Conectar(ip, puerto);
 
             if (!conexion.Contains("Conectado"))
                 return BadRequest(conexion);
 
-            var resultado = zKTecoService.CambiarEstadoUsuario(userId, habilitar);
+            var resultado = zktecoService.CambiarEstadoUsuario(userId, habilitar);
 
-            zKTecoService.Desconectar();
+            zktecoService.Desconectar();
 
             return Ok(resultado);
         }
@@ -67,6 +77,9 @@ namespace API_Torniquetes.Controllers
         [HttpGet("usuarios/{userId}")]
         public ActionResult<UsuarioZKTeco> ObtenerUsuarioPorId(string userId, string ip)
         {
+            using var scope = scopeFactory.CreateScope();
+            var zKTecoService = scope.ServiceProvider.GetRequiredService<IZKTecoService>();
+
             var conexion = zKTecoService.Conectar(ip, PUERTO);
 
             if (!conexion.Contains("Conectado"))
@@ -85,6 +98,9 @@ namespace API_Torniquetes.Controllers
         [HttpPut("usuarios/{userId}")]
         public ActionResult ActualizarNombreUsuario(string userId, string ip, string nombre, int puerto = 4370)
         {
+            using var scope = scopeFactory.CreateScope();
+            var zKTecoService = scope.ServiceProvider.GetRequiredService<IZKTecoService>();
+
             var conexion = zKTecoService.Conectar(ip, puerto);
 
             if (!conexion.Contains("Conectado"))
@@ -103,6 +119,9 @@ namespace API_Torniquetes.Controllers
         [HttpPost("usuarios/{userId}/copiar")]
         public ActionResult CopiarUsuarioConHuellas(string ipOrigen, string ipDestino, string userId)
         {
+            using var scope = scopeFactory.CreateScope();
+            var zKTecoService = scope.ServiceProvider.GetRequiredService<IZKTecoService>();
+
             var resultado = zKTecoService.CopiarUsuarioConHuellas(ipOrigen, ipDestino, userId);
 
             if (resultado.Contains("Error"))
@@ -111,17 +130,12 @@ namespace API_Torniquetes.Controllers
             return Ok(resultado);
         }
 
-        [HttpGet("reservas")]
-        public ActionResult<Reserva[]> ObtenerReservasActivas(DateTime? fecha)
-        {
-            Reserva[] reservas = reservasService.ObtenerReservasActivas(fecha);
-
-            return Ok(reservas);
-        }
-
         [HttpGet("firmware")]
         public ActionResult ObtenerFirmware(string ip, int puerto = 4370)
         {
+            using var scope = scopeFactory.CreateScope();
+            var zKTecoService = scope.ServiceProvider.GetRequiredService<IZKTecoService>();
+
             var conexion = zKTecoService.Conectar(ip, puerto);
 
             if (!conexion.Contains("Conectado"))
@@ -144,6 +158,9 @@ namespace API_Torniquetes.Controllers
         [HttpGet("algoritmo")]
         public ActionResult ObtenerAlgoritmo(string ip, int puerto = 4370)
         {
+            using var scope = scopeFactory.CreateScope();
+            var zKTecoService = scope.ServiceProvider.GetRequiredService<IZKTecoService>();
+
             var conexion = zKTecoService.Conectar(ip, puerto);
 
             if (!conexion.Contains("Conectado"))
@@ -163,12 +180,53 @@ namespace API_Torniquetes.Controllers
             });
         }
 
-        /*[HttpPost("reservas")]
-        public ActionResult RegistrarReservaDeClase(string rut_usuario, string ip_torniquete, DateTime inicio_reserva, DateTime fin_reserva)
+        [HttpGet("sincronizar")]
+        public ActionResult SincronizarUsuariosTorniqueteBD(string ip)
         {
+            using var scope = scopeFactory.CreateScope();
+            var zKTecoService = scope.ServiceProvider.GetRequiredService<IZKTecoService>();
+            var reservasService = scope.ServiceProvider.GetRequiredService<IReservasService>();
+
+            var conexion = zKTecoService.Conectar(ip, PUERTO);
+
+            if (!conexion.Contains("Conectado"))
+                return BadRequest(conexion);
+
+            var usuarios = zKTecoService.ObtenerUsuarios();
+            int sincronizados = 0;
+
+            zKTecoService.Desconectar();
+
+            foreach (var usuario in usuarios)
+            {
+                sincronizados += reservasService.RegistrarUsuarioEnBD(usuario.UserID, ip, true);
+            }
+
+            return Ok(new { 
+                message = $"Usuarios sincronizados correctamente ({sincronizados}/{usuarios.Count})"
+            });
+        }
+
+        [HttpGet("reservas")]
+        public ActionResult<Reserva[]> ObtenerReservasActivas(DateTime? fecha)
+        {
+            using var scope = scopeFactory.CreateScope();
+            var reservasService = scope.ServiceProvider.GetRequiredService<IReservasService>();
+
+            List<Reserva> reservas = reservasService.ObtenerReservasActivas(fecha);
+
+            return Ok(reservas);
+        }
+
+        [HttpPost("reservas")]
+        public ActionResult RegistrarReservaDeClase([FromBody] RegistrarReservaRequest request)
+        {
+            using var scope = scopeFactory.CreateScope();
+            var reservasService = scope.ServiceProvider.GetRequiredService<IReservasService>();
+
             try
             {
-                this.reservasService.RegistrarReservaDeClase(rut_usuario, ip_torniquete, inicio_reserva, fin_reserva);
+                reservasService.RegistrarReservaDeClase(request.id, request.rut_usuario, request.ip_torniquete, request.inicio_reserva, request.fin_reserva);
                 return Created();
             }
             catch (Exception ex)
@@ -179,6 +237,6 @@ namespace API_Torniquetes.Controllers
                     mensaje = ex.Message
                 });
             }
-        }*/
+        }
     }
 }

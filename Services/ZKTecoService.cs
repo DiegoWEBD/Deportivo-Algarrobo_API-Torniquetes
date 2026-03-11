@@ -1,4 +1,5 @@
 ﻿using API_Torniquetes.Models;
+using API_Torniquetes.Models.Usuarios;
 using zkemkeeper;
 
 namespace API_Torniquetes.Services
@@ -97,6 +98,46 @@ namespace API_Torniquetes.Services
                 : "Usuario deshabilitado correctamente";
         }
 
+        public string CambiarEstadoUsuarios(List<UsuarioEstadoVencido> usuarios)
+        {
+            const int grupoUsuariosHabilitados = 1;
+            const int grupoUsuariosDeshabilitados = 2;
+
+            if (!zk.EnableDevice(1, false))
+                return "No se pudo deshabilitar el equipo";
+
+            if (!zk.ReadAllUserID(1))
+            {
+                zk.EnableDevice(1, true);
+                return "No se pudieron leer usuarios";
+            }
+
+            zk.RefreshData(1);
+
+            foreach (var usuario in usuarios)
+            {
+                int grupo = usuario.nuevoEstadoHabilitado
+                    ? grupoUsuariosHabilitados
+                    : grupoUsuariosDeshabilitados;
+
+                bool ok = zk.SetUserGroup(1, int.Parse(usuario.idUsuario), grupo);
+
+                if (!ok)
+                {
+                    int error = 0;
+                    zk.GetLastError(ref error);
+                    Console.WriteLine($"Error usuario {usuario.idUsuario}: {error}");
+                }
+
+                Console.WriteLine($"{DateTime.Now}. Usuario {usuario.idUsuario} {(usuario.nuevoEstadoHabilitado ? "habilitado" : "deshabilitado")} en torniquete {usuario.ipTorniquete}.");
+            }
+
+            zk.RefreshData(1);
+            zk.EnableDevice(1, true);
+
+            return "Usuarios actualizados";
+        }
+
         public UsuarioZKTeco? ObtenerUsuarioPorId(string userId)
         {
             if (!zk.ReadAllUserID(1))
@@ -112,9 +153,9 @@ namespace API_Torniquetes.Services
             if (!zk.SSR_GetUserInfo(1, userId, out name, out password, out privilege, out enabled))
                 return null;
 
-            int grupoActual = 0;
+            string timezone = "0";
 
-            if (!zk.GetUserGroup(1, int.Parse(userId), ref grupoActual))
+            if (!zk.GetUserTZStr(1, int.Parse(userId), ref timezone))
                 return null;
 
             return new UsuarioZKTeco
@@ -124,7 +165,7 @@ namespace API_Torniquetes.Services
                 Password = password,
                 Privilegio = privilege,
                 Habilitado = enabled,
-                Grupo = grupoActual
+                Grupo = timezone
             };
         }
 
@@ -273,6 +314,5 @@ namespace API_Torniquetes.Services
 
             return version;
         }
-
     }
 }
