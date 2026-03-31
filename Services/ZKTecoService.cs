@@ -195,7 +195,11 @@ namespace API_Torniquetes.Services
 
         public string CopiarUsuarioConHuellas(string ipOrigen, string ipDestino, string userId)
         {
-            // ---------- ORIGEN ----------
+            int machine = 1;
+
+            // =========================
+            // ORIGEN
+            // =========================
             if (Conectar(ipOrigen).StartsWith("Error"))
                 return "No se pudo conectar al equipo origen";
 
@@ -206,43 +210,52 @@ namespace API_Torniquetes.Services
                 return "Usuario no existe en equipo origen";
             }
 
-            zk.EnableDevice(1, false);
-            zk.ReadAllTemplate(1);
-            zk.RefreshData(1);
+            zk.EnableDevice(machine, false);
 
-            var huellas = new List<(int fingerIndex, string template)>();
+            // ⭐ ORDEN OBLIGATORIO F18
+            zk.ReadAllUserID(machine);
+            zk.ReadAllTemplate(machine);
+            zk.RefreshData(machine);
 
-            string templateData;
-            int templateLength;
+            var huellas = new List<(int fingerIndex, int flag, string template)>();
 
             for (int fingerIndex = 0; fingerIndex <= 9; fingerIndex++)
             {
-                if (zk.SSR_GetUserTmpStr(1, userId, fingerIndex, out templateData, out templateLength))
+                string template = "";
+                int flag = 0;
+                int length = 0;
+
+                bool existe = zk.GetUserTmpExStr(
+                    machine,
+                    userId,
+                    fingerIndex,
+                    out flag,
+                    out template,
+                    out length
+                );
+
+                if (existe && !string.IsNullOrEmpty(template))
                 {
-                    huellas.Add((fingerIndex, templateData));
+                    huellas.Add((fingerIndex, flag, template));
                 }
             }
 
-            zk.EnableDevice(1, true);
+            zk.EnableDevice(machine, true);
             Desconectar();
 
-            // ---------- DESTINO ----------
+            // =========================
+            // DESTINO
+            // =========================
             if (Conectar(ipDestino).StartsWith("Error"))
                 return "No se pudo conectar al equipo destino";
 
-            zk.EnableDevice(1, false);
+            zk.EnableDevice(machine, false);
 
-            if (!zk.ReadAllUserID(1) || !zk.ReadAllTemplate(1))
-            {
-                zk.EnableDevice(1, true);
-                Desconectar();
-                return "No se pudieron leer datos destino";
-            }
-
-            zk.RefreshData(1);
+            // ⭐ modo batch evita errores internos
+            zk.BeginBatchUpdate(machine, 1);
 
             bool creado = zk.SSR_SetUserInfo(
-                1,
+                machine,
                 usuario.UserID,
                 usuario.Nombre,
                 usuario.Password ?? "",
@@ -254,34 +267,44 @@ namespace API_Torniquetes.Services
             {
                 int error = 0;
                 zk.GetLastError(ref error);
-                zk.EnableDevice(1, true);
+
+                zk.EnableDevice(machine, true);
                 Desconectar();
+
                 return $"Error creando usuario destino: {error}";
             }
 
-            zk.RefreshData(1);
-
+            // =========================
+            // COPIAR HUELLAS
+            // =========================
             foreach (var huella in huellas)
             {
-                bool huellaInsertada = zk.SSR_SetUserTmpStr(
-                    1,
-                    userId,
+                bool ok = zk.SetUserTmpExStr(
+                    machine,
+                    usuario.UserID,
                     huella.fingerIndex,
+                    huella.flag,      // ⭐ CRÍTICO
                     huella.template
                 );
 
-                if (!huellaInsertada)
+                if (!ok)
                 {
                     int error = 0;
                     zk.GetLastError(ref error);
-                    zk.EnableDevice(1, true);
+
+                    zk.BatchUpdate(machine);
+                    zk.EnableDevice(machine, true);
                     Desconectar();
+
                     return $"Error copiando dedo {huella.fingerIndex}: {error}";
                 }
             }
 
-            zk.RefreshData(1);
-            zk.EnableDevice(1, true);
+            // cerrar batch
+            zk.BatchUpdate(machine);
+
+            zk.RefreshData(machine);
+            zk.EnableDevice(machine, true);
             Desconectar();
 
             return "Usuario y huellas copiadas correctamente";

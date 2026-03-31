@@ -1,47 +1,16 @@
 C:\Users\PC_CONTA02\Desktop\RedySolutions\API Torniquetes\bin\x86\Debug\net10.0\appsettings.Development.json
 C:\Users\PC_CONTA02\Desktop\RedySolutions\API Torniquetes\bin\x86\Debug\net10.0\appsettings.json
+C:\Users\PC_CONTA02\Desktop\RedySolutions\API Torniquetes\bin\x86\Debug\net10.0\dotnet-tools.json
+C:\Users\PC_CONTA02\Desktop\RedySolutions\API Torniquetes\bin\x86\Debug\net10.0\libman.json
 C:\Users\PC_CONTA02\Desktop\RedySolutions\API Torniquetes\bin\x86\Debug\net10.0\API Torniquetes.staticwebassets.endpoints.json
 C:\Users\PC_CONTA02\Desktop\RedySolutions\API Torniquetes\bin\x86\Debug\net10.0\API Torniquetes.exe
 C:\Users\PC_CONTA02\Desktop\RedySolutions\API Torniquetes\bin\x86\Debug\net10.0\API Torniquetes.deps.json
 C:\Users\PC_CONTA02\Desktop\RedySolutions\API Torniquetes\bin\x86\Debug\net10.0\API Torniquetes.runtimeconfig.json
 C:\Users\PC_CONTA02\Desktop\RedySolutions\API Torniquetes\bin\x86\Debug\net10.0\API Torniquetes.dll
 C:\Users\PC_CONTA02\Desktop\RedySolutions\API Torniquetes\bin\x86\Debug\net10.0\API Torniquetes.pdb
-C:\Users\PC_CONTA02\Desktop\RedySolutions\API Torniquetes\bin\x86\Debug\net10.0\Microsoft.AspNetCore.OpenApi.dll
-C:\Users\PC_CONTA02\Desktop\RedySolutions\API Torniquetes\bin\x86\Debug\net10.0\Microsoft.OpenApi.dll
-C:\Users\PC_CONTA02\Desktop\RedySolutions\API Torniquetes\bin\x86\Debug\net10.0\Swashbuckle.AspNetCore.Swagger.dll
-C:\Users\PC_CONTA02\Desktop\RedySolutions\API Torniquetes\bin\x86\Debug\net10.0\Swashbuckle.AspNetCore.SwaggerGen.dll
-C:\Users\PC_CONTA02\Desktop\RedySolutions\API Torniquetes\bin\x86\Debug\net10.0\Swashbuckle.AspNetCore.SwaggerUI.dll
-C:\Users\PC_CONTA02\Desktop\RedySolutions\API Torniquetes\bin\x86\Debug\net10.0\Interop.zkemkeeper.dll
-C:\Users\PC_CONTA02\Desktop\RedySolutions\API Torniquetes\obj\x86\Debug\net10.0\API Torniquetes.csproj.AssemblyReference.cache
-C:\Users\PC_CONTA02\Desktop\RedySolutions\API Torniquetes\obj\x86\Debug\net10.0\Interop.zkemkeeper.dll
-C:\Users\PC_CONTA02\Desktop\RedySolutions\API Torniquetes\obj\x86\Debug\net10.0\API Torniquetes.csproj.ResolveComReference.cache
-C:\Users\PC_CONTA02\Desktop\RedySolutions\API Torniquetes\obj\x86\Debug\net10.0\rpswa.dswa.cache.json
-C:\Users\PC_CONTA02\Desktop\RedySolutions\API Torniquetes\obj\x86\Debug\net10.0\API Torniquetes.GeneratedMSBuildEditorConfig.editorconfig
-C:\Users\PC_CONTA02\Desktop\RedySolutions\API Torniquetes\obj\x86\Debug\net10.0\API Torniquetes.AssemblyInfoInputs.cache
-C:\Users\PC_CONTA02\Desktop\RedySolutions\API Torniquetes\obj\x86\Debug\net10.0\API Torniquetes.AssemblyInfo.cs
-C:\Users\PC_CONTA02\Desktop\RedySolutions\API Torniquetes\obj\x86\Debug\net10.0\API Torniquetes.csproj.CoreCompileInputs.cache
-C:\Users\PC_CONTA02\Desktop\RedySolutions\API Torniquetes\obj\x86\Debug\net10.0\API Torniquetes.MvcApplicationPartsAssemblyInfo.cs
-C:\Users\PC_CONTA02\Desktop\RedySolutions\API Torniquetes\obj\x86\Debug\net10.0\API Torniquetes.MvcApplicationPartsAssemblyInfo.cache
-C:\Users\PC_CONTA02\Desktop\RedySolutions\API Torniquetes\obj\x86\Debug\net10.0\rjimswa.dswa.cache.json
-C:\Users\PC_CONTA02\Desktop\RedySolutions\API Torniquetes\obj\x86\Debug\net10.0\rjsmrazor.dswa.cache.json
-C:\Users\PC_CONTA02\Desktop\RedySolutions\API Torniquetes\obj\x86\Debug\net10.0\rjsmcshtml.dswa.cache.json
-C:\Users\PC_CONTA02\Desktop\RedySolutions\API Torniquetes\obj\x86\Debug\net10.0\scopedcss\bundle\API Torniquetes.styles.css
-C:\Users\PC_CONTA02\Desktop\RedySolutions\API Torniquetes\obj\x86\Debug\net10.0\staticwebassets.build.json
-C:\Users\PC_CONTA02\Desktop\RedySolutions\API Torniquetes\obj\x86\Debug\net10.0\staticwebassets.build.json.cache
-C:\Users\PC_CONTA02\Desktop\RedySolutions\API Torniquetes\obj\x86\Debug\net10.0\staticwebassets.development.json
-C:\Users\PC_CONTA02\Desktop\RedySolutions\API Torniquetes\obj\x86\Debug\net10.0\staticwebassets.build.endpoints.json
-C:\Users\PC_CONTA02\Desktop\RedySolutions\API Torniquetes\obj\x86\Debug\net10.0\swae.build.ex.cache
-C:\Users\PC_CONTA02\Desktop\RedySolutions\API Torniquetes\obj\x86\Debug\net10.0\staticwebassets.upToDateCheck.txt
-C:\Users\PC_CONTA02\Desktop\RedySolutions\API Torniquetes\obj\x86\Debug\net10.0\API Torn.B5B96075.Up2Date
-C:\Users\PC_CONTA02\Desktop\RedySolutions\API Torniquetes\obj\x86\Debug\net10.0\API Torniquetes.dll
-C:\Users\PC_CONTA02\Desktop\RedySolutions\API Torniquetes\obj\x86\Debug\net10.0\refint\API Torniquetes.dll
-C:\Users\PC_CONTA02\Desktop\RedySolutions\API Torniquetes\obj\x86\Debug\net10.0\API Torniquetes.pdb
-C:\Users\PC_CONTA02\Desktop\RedySolutions\API Torniquetes\obj\x86\Debug\net10.0\API Torniquetes.genruntimeconfig.cache
-C:\Users\PC_CONTA02\Desktop\RedySolutions\API Torniquetes\obj\x86\Debug\net10.0\ref\API Torniquetes.dll
-C:\Users\PC_CONTA02\Desktop\RedySolutions\API Torniquetes\obj\x86\Debug\net10.0\API Torniquetes.sourcelink.json
-C:\Users\PC_CONTA02\Desktop\RedySolutions\API Torniquetes\bin\x86\Debug\net10.0\libman.json
 C:\Users\PC_CONTA02\Desktop\RedySolutions\API Torniquetes\bin\x86\Debug\net10.0\Azure.Core.dll
 C:\Users\PC_CONTA02\Desktop\RedySolutions\API Torniquetes\bin\x86\Debug\net10.0\Azure.Identity.dll
+C:\Users\PC_CONTA02\Desktop\RedySolutions\API Torniquetes\bin\x86\Debug\net10.0\Microsoft.AspNetCore.OpenApi.dll
 C:\Users\PC_CONTA02\Desktop\RedySolutions\API Torniquetes\bin\x86\Debug\net10.0\Microsoft.Bcl.AsyncInterfaces.dll
 C:\Users\PC_CONTA02\Desktop\RedySolutions\API Torniquetes\bin\x86\Debug\net10.0\Microsoft.Data.SqlClient.dll
 C:\Users\PC_CONTA02\Desktop\RedySolutions\API Torniquetes\bin\x86\Debug\net10.0\Microsoft.Identity.Client.dll
@@ -52,7 +21,11 @@ C:\Users\PC_CONTA02\Desktop\RedySolutions\API Torniquetes\bin\x86\Debug\net10.0\
 C:\Users\PC_CONTA02\Desktop\RedySolutions\API Torniquetes\bin\x86\Debug\net10.0\Microsoft.IdentityModel.Protocols.dll
 C:\Users\PC_CONTA02\Desktop\RedySolutions\API Torniquetes\bin\x86\Debug\net10.0\Microsoft.IdentityModel.Protocols.OpenIdConnect.dll
 C:\Users\PC_CONTA02\Desktop\RedySolutions\API Torniquetes\bin\x86\Debug\net10.0\Microsoft.IdentityModel.Tokens.dll
+C:\Users\PC_CONTA02\Desktop\RedySolutions\API Torniquetes\bin\x86\Debug\net10.0\Microsoft.OpenApi.dll
 C:\Users\PC_CONTA02\Desktop\RedySolutions\API Torniquetes\bin\x86\Debug\net10.0\Microsoft.SqlServer.Server.dll
+C:\Users\PC_CONTA02\Desktop\RedySolutions\API Torniquetes\bin\x86\Debug\net10.0\Swashbuckle.AspNetCore.Swagger.dll
+C:\Users\PC_CONTA02\Desktop\RedySolutions\API Torniquetes\bin\x86\Debug\net10.0\Swashbuckle.AspNetCore.SwaggerGen.dll
+C:\Users\PC_CONTA02\Desktop\RedySolutions\API Torniquetes\bin\x86\Debug\net10.0\Swashbuckle.AspNetCore.SwaggerUI.dll
 C:\Users\PC_CONTA02\Desktop\RedySolutions\API Torniquetes\bin\x86\Debug\net10.0\System.ClientModel.dll
 C:\Users\PC_CONTA02\Desktop\RedySolutions\API Torniquetes\bin\x86\Debug\net10.0\System.Configuration.ConfigurationManager.dll
 C:\Users\PC_CONTA02\Desktop\RedySolutions\API Torniquetes\bin\x86\Debug\net10.0\System.IdentityModel.Tokens.Jwt.dll
@@ -76,3 +49,31 @@ C:\Users\PC_CONTA02\Desktop\RedySolutions\API Torniquetes\bin\x86\Debug\net10.0\
 C:\Users\PC_CONTA02\Desktop\RedySolutions\API Torniquetes\bin\x86\Debug\net10.0\runtimes\win-arm64\native\Microsoft.Data.SqlClient.SNI.dll
 C:\Users\PC_CONTA02\Desktop\RedySolutions\API Torniquetes\bin\x86\Debug\net10.0\runtimes\win-x64\native\Microsoft.Data.SqlClient.SNI.dll
 C:\Users\PC_CONTA02\Desktop\RedySolutions\API Torniquetes\bin\x86\Debug\net10.0\runtimes\win-x86\native\Microsoft.Data.SqlClient.SNI.dll
+C:\Users\PC_CONTA02\Desktop\RedySolutions\API Torniquetes\bin\x86\Debug\net10.0\Interop.zkemkeeper.dll
+C:\Users\PC_CONTA02\Desktop\RedySolutions\API Torniquetes\obj\x86\Debug\net10.0\API Torniquetes.csproj.AssemblyReference.cache
+C:\Users\PC_CONTA02\Desktop\RedySolutions\API Torniquetes\obj\x86\Debug\net10.0\Interop.zkemkeeper.dll
+C:\Users\PC_CONTA02\Desktop\RedySolutions\API Torniquetes\obj\x86\Debug\net10.0\API Torniquetes.csproj.ResolveComReference.cache
+C:\Users\PC_CONTA02\Desktop\RedySolutions\API Torniquetes\obj\x86\Debug\net10.0\rpswa.dswa.cache.json
+C:\Users\PC_CONTA02\Desktop\RedySolutions\API Torniquetes\obj\x86\Debug\net10.0\API Torniquetes.GeneratedMSBuildEditorConfig.editorconfig
+C:\Users\PC_CONTA02\Desktop\RedySolutions\API Torniquetes\obj\x86\Debug\net10.0\API Torniquetes.AssemblyInfoInputs.cache
+C:\Users\PC_CONTA02\Desktop\RedySolutions\API Torniquetes\obj\x86\Debug\net10.0\API Torniquetes.AssemblyInfo.cs
+C:\Users\PC_CONTA02\Desktop\RedySolutions\API Torniquetes\obj\x86\Debug\net10.0\API Torniquetes.csproj.CoreCompileInputs.cache
+C:\Users\PC_CONTA02\Desktop\RedySolutions\API Torniquetes\obj\x86\Debug\net10.0\API Torniquetes.MvcApplicationPartsAssemblyInfo.cs
+C:\Users\PC_CONTA02\Desktop\RedySolutions\API Torniquetes\obj\x86\Debug\net10.0\API Torniquetes.MvcApplicationPartsAssemblyInfo.cache
+C:\Users\PC_CONTA02\Desktop\RedySolutions\API Torniquetes\obj\x86\Debug\net10.0\API Torniquetes.sourcelink.json
+C:\Users\PC_CONTA02\Desktop\RedySolutions\API Torniquetes\obj\x86\Debug\net10.0\rjimswa.dswa.cache.json
+C:\Users\PC_CONTA02\Desktop\RedySolutions\API Torniquetes\obj\x86\Debug\net10.0\rjsmrazor.dswa.cache.json
+C:\Users\PC_CONTA02\Desktop\RedySolutions\API Torniquetes\obj\x86\Debug\net10.0\rjsmcshtml.dswa.cache.json
+C:\Users\PC_CONTA02\Desktop\RedySolutions\API Torniquetes\obj\x86\Debug\net10.0\scopedcss\bundle\API Torniquetes.styles.css
+C:\Users\PC_CONTA02\Desktop\RedySolutions\API Torniquetes\obj\x86\Debug\net10.0\staticwebassets.build.json
+C:\Users\PC_CONTA02\Desktop\RedySolutions\API Torniquetes\obj\x86\Debug\net10.0\staticwebassets.build.json.cache
+C:\Users\PC_CONTA02\Desktop\RedySolutions\API Torniquetes\obj\x86\Debug\net10.0\staticwebassets.development.json
+C:\Users\PC_CONTA02\Desktop\RedySolutions\API Torniquetes\obj\x86\Debug\net10.0\staticwebassets.build.endpoints.json
+C:\Users\PC_CONTA02\Desktop\RedySolutions\API Torniquetes\obj\x86\Debug\net10.0\swae.build.ex.cache
+C:\Users\PC_CONTA02\Desktop\RedySolutions\API Torniquetes\obj\x86\Debug\net10.0\staticwebassets.upToDateCheck.txt
+C:\Users\PC_CONTA02\Desktop\RedySolutions\API Torniquetes\obj\x86\Debug\net10.0\API Torn.B5B96075.Up2Date
+C:\Users\PC_CONTA02\Desktop\RedySolutions\API Torniquetes\obj\x86\Debug\net10.0\API Torniquetes.dll
+C:\Users\PC_CONTA02\Desktop\RedySolutions\API Torniquetes\obj\x86\Debug\net10.0\refint\API Torniquetes.dll
+C:\Users\PC_CONTA02\Desktop\RedySolutions\API Torniquetes\obj\x86\Debug\net10.0\API Torniquetes.pdb
+C:\Users\PC_CONTA02\Desktop\RedySolutions\API Torniquetes\obj\x86\Debug\net10.0\API Torniquetes.genruntimeconfig.cache
+C:\Users\PC_CONTA02\Desktop\RedySolutions\API Torniquetes\obj\x86\Debug\net10.0\ref\API Torniquetes.dll
