@@ -1,5 +1,4 @@
 ﻿using API_Torniquetes.Models.Reserva;
-using API_Torniquetes.Models.Usuarios;
 using Microsoft.Data.SqlClient;
 using System.Data;
 
@@ -7,66 +6,35 @@ namespace API_Torniquetes.Repositories.Reservas
 {
     public class ReservaRepository : IReservaRepository
     {
-        private readonly string dbConnectionString = "Server=localhost\\SQLEXPRESS;Database=Torniquetes_Permisos;Trusted_Connection=True;TrustServerCertificate=True;";
-        //private readonly string dbConnectionString = "Server = 192.168.1.5; Database = Torniquetes_Permisos; User Id = admin_torniquetes; Password=u6B3X_a8dZ; TrustServerCertificate=True;";
+        //private readonly string dbConnectionString = "Server=localhost\\SQLEXPRESS;Database=Torniquetes_Permisos;Trusted_Connection=True;TrustServerCertificate=True;";
+        private readonly string dbConnectionString = "Server = 201.148.104.16; Database = reservas_Algarrobo_v2; User Id = reservas_admin_redysolutions; Password=cX970htvSk; TrustServerCertificate=True;";
 
-        public Reserva Add(Reserva reserva)
+        /*public Reserva Add(Reserva reserva)
         {
             using SqlConnection connection = new(dbConnectionString);
             connection.Open();
 
-            using SqlTransaction transaction = connection.BeginTransaction();
+            string query = @"
+                insert into Reserva(id_usuario, ip_torniquete, inicio_reserva, fin_reserva)
+                output inserted.id
+                values (@id_usuario, @ip_torniquete, @inicio_reserva, @fin_reserva)";
 
-            try
-            {
-                // reserva
-                string queryReserva = @"
-                    insert into Reserva(id, id_usuario, ip_torniquete, inicio_reserva, fin_reserva)
-                    values (@id, @id_usuario, @ip_torniquete, @inicio_reserva, @fin_reserva)
-                ";
+            using SqlCommand command = new(query, connection);
 
-                using SqlCommand commandReserva = new(queryReserva, connection, transaction);
+            command.Parameters.Add("@id_usuario", SqlDbType.NVarChar).Value = reserva.idUsuario;
+            command.Parameters.Add("@ip_torniquete", SqlDbType.NVarChar).Value = reserva.nombreSala;
+            command.Parameters.Add("@inicio_reserva", SqlDbType.DateTime).Value = reserva.inicioReserva;
+            command.Parameters.Add("@fin_reserva", SqlDbType.DateTime).Value = reserva.finReserva;
 
-                commandReserva.Parameters.Add("@id", SqlDbType.Int).Value = reserva.id;
-                commandReserva.Parameters.Add("@id_usuario", SqlDbType.NVarChar).Value = reserva.idUsuario;
-                commandReserva.Parameters.Add("@ip_torniquete", SqlDbType.NVarChar).Value = reserva.ipTorniquete;
-                commandReserva.Parameters.Add("@inicio_reserva", SqlDbType.DateTime).Value = reserva.inicioReserva;
-                commandReserva.Parameters.Add("@fin_reserva", SqlDbType.DateTime).Value = reserva.finReserva;
+            int idGenerado = (int)command.ExecuteScalar();
 
-                commandReserva.ExecuteScalar();
+            reserva.id = idGenerado;
+            
 
-                // estado acceso
-                string queryEstado = @"
-                    insert into EstadoAcceso(id_usuario, ip_torniquete, habilitado)
-                    select @id_usuario, @ip_torniquete, @habilitado
-                    where not exists (
-                        select 1
-                        from EstadoAcceso
-                        where id_usuario = @id_usuario
-                        and ip_torniquete = @ip_torniquete
-                    )
-                ";
+            return reserva;
+        }*/
 
-                using SqlCommand commandEstado = new(queryEstado, connection, transaction);
-
-                commandEstado.Parameters.Add("@id_usuario", SqlDbType.NVarChar).Value = reserva.idUsuario;
-                commandEstado.Parameters.Add("@ip_torniquete", SqlDbType.NVarChar).Value = reserva.ipTorniquete;
-                commandEstado.Parameters.Add("@habilitado", SqlDbType.Bit).Value = false;
-
-                commandEstado.ExecuteNonQuery();
-
-                transaction.Commit();
-
-                return reserva;
-            }
-            catch
-            {
-                transaction.Rollback();
-                throw;
-            }
-        }
-
-        public List<Reserva> ObtenerReservasActivas(DateTime fecha)
+        public Reserva[] ObtenerReservasActivas(DateTime fecha)
         {
             List<Reserva> reservas = new();
             using SqlConnection connection = new(dbConnectionString);
@@ -108,117 +76,13 @@ namespace API_Torniquetes.Repositories.Reservas
                 {
                     id = Convert.ToInt32(reader["IdReserva"]),
                     idUsuario = reader["RutUsuario"].ToString(),
-                    ipTorniquete = reader["NombreSala"].ToString(),
+                    nombreSala = reader["NombreSala"].ToString(),
                     inicioReserva = fechaReserva.Date.Add(horaInicio),
                     finReserva = fechaReserva.Date.Add(horaFin)
                 });
             }
 
-            return reservas;
-        }
-
-        public int RegistrarUsuarioEnBD(string idUsuario, string ipTorniquete, bool habilitado)
-        {
-            using SqlConnection connection = new(dbConnectionString);
-            connection.Open();
-
-            string query = @"
-                insert into EstadoAcceso(id_usuario, ip_torniquete, habilitado)
-                select @id_usuario, @ip_torniquete, @habilitado
-                where not exists (
-                    select 1
-                    from EstadoAcceso
-                    where id_usuario = @id_usuario
-                    and ip_torniquete = @ip_torniquete
-                )";
-
-            using SqlCommand command = new(query, connection);
-
-            command.Parameters.Add("@id_usuario", SqlDbType.NVarChar).Value = idUsuario;
-            command.Parameters.Add("@ip_torniquete", SqlDbType.NVarChar).Value = ipTorniquete;
-            command.Parameters.Add("@habilitado", SqlDbType.Bit).Value = habilitado;
-
-            int filasAfectadas = command.ExecuteNonQuery();
-
-            return filasAfectadas;
-        }
-
-        public Dictionary<string, List<UsuarioEstadoVencido>> ObtenerUsuariosConNuevoEstado()
-        {
-            Dictionary<string, List<UsuarioEstadoVencido>> estadosVencidos = new();
-            using SqlConnection connection = new(dbConnectionString);
-            connection.Open();
-
-            string query = @"
-                select *
-                from (
-                    select
-                        EA.id_usuario,
-                        EA.ip_torniquete,
-                        EA.habilitado as estado_actual,
-
-                        case
-                            when exists (
-                                select 1
-                                from Reserva R
-                                where R.id_usuario = EA.id_usuario
-                                  and R.ip_torniquete = EA.ip_torniquete
-                                  and getdate() >= R.inicio_reserva
-                                  and getdate() <= R.fin_reserva
-                            )
-                            then 1
-                            else 0
-                        end as estado_deseado
-
-                    from EstadoAcceso EA
-                ) aux
-                where estado_actual <> estado_deseado";
-
-            using SqlCommand command = new(query, connection);
-            using SqlDataReader reader = command.ExecuteReader();
-
-            while (reader.Read())
-            {
-                string ipTorniquete = reader["ip_torniquete"].ToString();
-
-                if (!estadosVencidos.ContainsKey(ipTorniquete))
-                {
-                    estadosVencidos.Add(ipTorniquete, new());
-                }
-
-                List<UsuarioEstadoVencido> usuarios;
-                estadosVencidos.TryGetValue(ipTorniquete, out usuarios);
-
-                usuarios.Add(new UsuarioEstadoVencido
-                {
-                    idUsuario = reader["id_usuario"].ToString(),
-                    ipTorniquete = ipTorniquete,
-                    estadoHabilitadoActual = Boolean.Parse(reader["estado_actual"].ToString()),
-                    nuevoEstadoHabilitado = reader["estado_deseado"].ToString().Equals("1")
-                });
-            }
-
-            return estadosVencidos;
-        }
-
-        public void CambiarEstadoUsuario(string idUsuario, string ipTorniquete, bool habilitado)
-        {
-            using SqlConnection connection = new(dbConnectionString);
-            connection.Open();
-
-            string query = @"
-                update EstadoAcceso
-                set habilitado = @habilitado
-                where id_usuario = @id_usuario
-                and ip_torniquete = @ip_torniquete";
-
-            using SqlCommand command = new(query, connection);
-
-            command.Parameters.Add("@habilitado", SqlDbType.Bit).Value = habilitado;
-            command.Parameters.Add("@id_usuario", SqlDbType.NVarChar).Value = idUsuario;
-            command.Parameters.Add("@ip_torniquete", SqlDbType.NVarChar).Value = ipTorniquete;
-
-            command.ExecuteNonQuery();
+            return reservas.ToArray();
         }
     }
 }

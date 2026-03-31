@@ -1,12 +1,11 @@
 ﻿using API_Torniquetes.Models.Reserva;
-using API_Torniquetes.Models.Usuarios;
 using API_Torniquetes.Repositories.Reservas;
 
 namespace API_Torniquetes.Services.Reservas
 {
     public class ReservasService(IReservaRepository reservaRepository) : IReservasService
     {
-        public List<Reserva> ObtenerReservasActivas(DateTime? fecha)
+        public Reserva[] ObtenerReservasActivas(DateTime? fecha)
         {
             if (fecha == null)
             {
@@ -16,12 +15,7 @@ namespace API_Torniquetes.Services.Reservas
             return reservaRepository.ObtenerReservasActivas((DateTime)fecha);
         }
 
-        public int RegistrarUsuarioEnBD(string idUsuario, string ipTorniquete, bool habilitado)
-        {
-            return reservaRepository.RegistrarUsuarioEnBD(idUsuario, ipTorniquete, habilitado);
-        }
-
-        public bool RegistrarReservaDeClase(int id, string rutUsuario, string ipTorniquete, DateTime inicioReserva, DateTime finReserva)
+        /*public bool RegistrarReservaDeClase(string rutUsuario, string ipTorniquete, DateTime inicioReserva, DateTime finReserva)
         {
             string[] arrayRutUsuario = rutUsuario.Split('-');
 
@@ -34,7 +28,6 @@ namespace API_Torniquetes.Services.Reservas
 
             Reserva reserva = new()
             { 
-                id = id,
                 idUsuario = idUsuario,
                 ipTorniquete = ipTorniquete,
                 inicioReserva = inicioReserva,
@@ -43,16 +36,6 @@ namespace API_Torniquetes.Services.Reservas
 
             reservaRepository.Add(reserva);
             return true;
-        }
-
-        public Dictionary<string, List<UsuarioEstadoVencido>> ObtenerUsuariosConNuevoEstado()
-        {
-            return reservaRepository.ObtenerUsuariosConNuevoEstado();
-        }
-
-        public void CambiarEstadoUsuario(string idUsuario, string ipTorniquete, bool habilitado)
-        {
-            reservaRepository.CambiarEstadoUsuario(idUsuario, ipTorniquete, habilitado);
-        }
+        }*/
     }
 }

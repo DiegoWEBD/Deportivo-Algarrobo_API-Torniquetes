@@ -1,5 +1,4 @@
 ﻿using API_Torniquetes.Models;
-using API_Torniquetes.Models.Usuarios;
 using zkemkeeper;
 
 namespace API_Torniquetes.Services
@@ -59,35 +58,48 @@ namespace API_Torniquetes.Services
             zk.Disconnect();
         }
 
-
         public string CambiarEstadoUsuario(string userId, bool habilitar)
         {
-            const int grupoUsuariosHabilitados = 1;
-            const int grupoUsuariosDeshabilitados = 2;
-            int grupo = habilitar ? grupoUsuariosHabilitados : grupoUsuariosDeshabilitados;
-
-            // Deshabilitar equipo temporalmente
+            // Deshabilitar dispositivo
             if (!zk.EnableDevice(1, false))
                 return "No se pudo deshabilitar el equipo";
 
-            // Cargar usuarios
-            if (!zk.ReadAllUserID(1))
+            // Cargar usuarios y templates
+            if (!zk.ReadAllUserID(1) || !zk.ReadAllTemplate(1))
             {
                 zk.EnableDevice(1, true);
-                return "No se pudieron leer los usuarios";
+                return "No se pudieron leer los datos del equipo";
             }
 
             zk.RefreshData(1);
 
-            // Cambiar grupo
-            bool resultado = zk.SetUserGroup(1, int.Parse(userId), grupo);
+            string name = string.Empty;
+            string password = string.Empty;
+            int privilege = 0;
+            bool enabled = false;
+
+            if (!zk.SSR_GetUserInfo(1, userId, out name, out password, out privilege, out enabled))
+            {
+                zk.EnableDevice(1, true);
+                return "Usuario no encontrado";
+            }
+
+            // Mantener exactamente los mismos datos
+            bool resultado = zk.SSR_SetUserInfo(
+                1,
+                userId,
+                name,
+                password ?? "",
+                privilege,
+                habilitar
+            );
 
             if (!resultado)
             {
                 int error = 0;
                 zk.GetLastError(ref error);
                 zk.EnableDevice(1, true);
-                return $"Error al cambiar estado del usuario: {error}";
+                return $"Error al actualizar usuario: {error}";
             }
 
             zk.RefreshData(1);
@@ -96,46 +108,6 @@ namespace API_Torniquetes.Services
             return habilitar
                 ? "Usuario habilitado correctamente"
                 : "Usuario deshabilitado correctamente";
-        }
-
-        public string CambiarEstadoUsuarios(List<UsuarioEstadoVencido> usuarios)
-        {
-            const int grupoUsuariosHabilitados = 1;
-            const int grupoUsuariosDeshabilitados = 2;
-
-            if (!zk.EnableDevice(1, false))
-                return "No se pudo deshabilitar el equipo";
-
-            if (!zk.ReadAllUserID(1))
-            {
-                zk.EnableDevice(1, true);
-                return "No se pudieron leer usuarios";
-            }
-
-            zk.RefreshData(1);
-
-            foreach (var usuario in usuarios)
-            {
-                int grupo = usuario.nuevoEstadoHabilitado
-                    ? grupoUsuariosHabilitados
-                    : grupoUsuariosDeshabilitados;
-
-                bool ok = zk.SetUserGroup(1, int.Parse(usuario.idUsuario), grupo);
-
-                if (!ok)
-                {
-                    int error = 0;
-                    zk.GetLastError(ref error);
-                    Console.WriteLine($"Error usuario {usuario.idUsuario}: {error}");
-                }
-
-                Console.WriteLine($"{DateTime.Now}. Usuario {usuario.idUsuario} {(usuario.nuevoEstadoHabilitado ? "habilitado" : "deshabilitado")} en torniquete {usuario.ipTorniquete}.");
-            }
-
-            zk.RefreshData(1);
-            zk.EnableDevice(1, true);
-
-            return "Usuarios actualizados";
         }
 
         public UsuarioZKTeco? ObtenerUsuarioPorId(string userId)
@@ -153,19 +125,13 @@ namespace API_Torniquetes.Services
             if (!zk.SSR_GetUserInfo(1, userId, out name, out password, out privilege, out enabled))
                 return null;
 
-            string timezone = "0";
-
-            if (!zk.GetUserTZStr(1, int.Parse(userId), ref timezone))
-                return null;
-
             return new UsuarioZKTeco
             {
                 UserID = userId,
                 Nombre = name.Trim('\0').Trim(),
                 Password = password,
                 Privilegio = privilege,
-                Habilitado = enabled,
-                Grupo = timezone
+                Habilitado = enabled
             };
         }
 
@@ -195,11 +161,7 @@ namespace API_Torniquetes.Services
 
         public string CopiarUsuarioConHuellas(string ipOrigen, string ipDestino, string userId)
         {
-            int machine = 1;
-
-            // =========================
-            // ORIGEN
-            // =========================
+            // ---------- ORIGEN ----------
             if (Conectar(ipOrigen).StartsWith("Error"))
                 return "No se pudo conectar al equipo origen";
 
@@ -210,52 +172,43 @@ namespace API_Torniquetes.Services
                 return "Usuario no existe en equipo origen";
             }
 
-            zk.EnableDevice(machine, false);
+            zk.EnableDevice(1, false);
+            zk.ReadAllTemplate(1);
+            zk.RefreshData(1);
 
-            // ⭐ ORDEN OBLIGATORIO F18
-            zk.ReadAllUserID(machine);
-            zk.ReadAllTemplate(machine);
-            zk.RefreshData(machine);
+            var huellas = new List<(int fingerIndex, string template)>();
 
-            var huellas = new List<(int fingerIndex, int flag, string template)>();
+            string templateData;
+            int templateLength;
 
             for (int fingerIndex = 0; fingerIndex <= 9; fingerIndex++)
             {
-                string template = "";
-                int flag = 0;
-                int length = 0;
-
-                bool existe = zk.GetUserTmpExStr(
-                    machine,
-                    userId,
-                    fingerIndex,
-                    out flag,
-                    out template,
-                    out length
-                );
-
-                if (existe && !string.IsNullOrEmpty(template))
+                if (zk.SSR_GetUserTmpStr(1, userId, fingerIndex, out templateData, out templateLength))
                 {
-                    huellas.Add((fingerIndex, flag, template));
+                    huellas.Add((fingerIndex, templateData));
                 }
             }
 
-            zk.EnableDevice(machine, true);
+            zk.EnableDevice(1, true);
             Desconectar();
 
-            // =========================
-            // DESTINO
-            // =========================
+            // ---------- DESTINO ----------
             if (Conectar(ipDestino).StartsWith("Error"))
                 return "No se pudo conectar al equipo destino";
 
-            zk.EnableDevice(machine, false);
+            zk.EnableDevice(1, false);
 
-            // ⭐ modo batch evita errores internos
-            zk.BeginBatchUpdate(machine, 1);
+            if (!zk.ReadAllUserID(1) || !zk.ReadAllTemplate(1))
+            {
+                zk.EnableDevice(1, true);
+                Desconectar();
+                return "No se pudieron leer datos destino";
+            }
+
+            zk.RefreshData(1);
 
             bool creado = zk.SSR_SetUserInfo(
-                machine,
+                1,
                 usuario.UserID,
                 usuario.Nombre,
                 usuario.Password ?? "",
@@ -267,44 +220,34 @@ namespace API_Torniquetes.Services
             {
                 int error = 0;
                 zk.GetLastError(ref error);
-
-                zk.EnableDevice(machine, true);
+                zk.EnableDevice(1, true);
                 Desconectar();
-
                 return $"Error creando usuario destino: {error}";
             }
 
-            // =========================
-            // COPIAR HUELLAS
-            // =========================
+            zk.RefreshData(1);
+
             foreach (var huella in huellas)
             {
-                bool ok = zk.SetUserTmpExStr(
-                    machine,
-                    usuario.UserID,
+                bool huellaInsertada = zk.SSR_SetUserTmpStr(
+                    1,
+                    userId,
                     huella.fingerIndex,
-                    huella.flag,      // ⭐ CRÍTICO
                     huella.template
                 );
 
-                if (!ok)
+                if (!huellaInsertada)
                 {
                     int error = 0;
                     zk.GetLastError(ref error);
-
-                    zk.BatchUpdate(machine);
-                    zk.EnableDevice(machine, true);
+                    zk.EnableDevice(1, true);
                     Desconectar();
-
                     return $"Error copiando dedo {huella.fingerIndex}: {error}";
                 }
             }
 
-            // cerrar batch
-            zk.BatchUpdate(machine);
-
-            zk.RefreshData(machine);
-            zk.EnableDevice(machine, true);
+            zk.RefreshData(1);
+            zk.EnableDevice(1, true);
             Desconectar();
 
             return "Usuario y huellas copiadas correctamente";
@@ -337,5 +280,6 @@ namespace API_Torniquetes.Services
 
             return version;
         }
+
     }
 }
