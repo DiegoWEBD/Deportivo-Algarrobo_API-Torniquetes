@@ -6,6 +6,17 @@
   },
   "paths": {
     "/api/Torniquetes": {
+      "get": {
+        "tags": [
+          "Torniquetes"
+        ],
+        "operationId": "VerificarConexion",
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      },
       "post": {
         "tags": [
           "Torniquetes"
@@ -109,6 +120,44 @@
         }
       }
     },
+    "/api/Torniquetes/usuarios/nuevo-estado": {
+      "get": {
+        "tags": [
+          "Torniquetes"
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/UsuarioZKTeco"
+                  }
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/UsuarioZKTeco"
+                  }
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/UsuarioZKTeco"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/api/Torniquetes/usuarios/estado": {
       "post": {
         "tags": [
@@ -163,6 +212,13 @@
             "name": "userId",
             "in": "path",
             "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "ip",
+            "in": "query",
             "schema": {
               "type": "string"
             }
@@ -234,10 +290,256 @@
           }
         }
       }
+    },
+    "/api/Torniquetes/usuarios/{userId}/copiar": {
+      "post": {
+        "tags": [
+          "Torniquetes"
+        ],
+        "parameters": [
+          {
+            "name": "ipOrigen",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "ipDestino",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "userId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/api/Torniquetes/firmware": {
+      "get": {
+        "tags": [
+          "Torniquetes"
+        ],
+        "parameters": [
+          {
+            "name": "ip",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "puerto",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "format": "int32",
+              "default": 4370
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/api/Torniquetes/algoritmo": {
+      "get": {
+        "tags": [
+          "Torniquetes"
+        ],
+        "parameters": [
+          {
+            "name": "ip",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "puerto",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "format": "int32",
+              "default": 4370
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/api/Torniquetes/sincronizar": {
+      "get": {
+        "tags": [
+          "Torniquetes"
+        ],
+        "parameters": [
+          {
+            "name": "ip",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/api/Torniquetes/reservas": {
+      "get": {
+        "tags": [
+          "Torniquetes"
+        ],
+        "parameters": [
+          {
+            "name": "fecha",
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "format": "date-time"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/Reserva"
+                  }
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/Reserva"
+                  }
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/Reserva"
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "tags": [
+          "Torniquetes"
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/RegistrarReservaRequest"
+              }
+            },
+            "text/json": {
+              "schema": {
+                "$ref": "#/components/schemas/RegistrarReservaRequest"
+              }
+            },
+            "application/*+json": {
+              "schema": {
+                "$ref": "#/components/schemas/RegistrarReservaRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
     }
   },
   "components": {
     "schemas": {
+      "RegistrarReservaRequest": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "rut_usuario": {
+            "type": "string",
+            "nullable": true
+          },
+          "ip_torniquete": {
+            "type": "string",
+            "nullable": true
+          },
+          "inicio_reserva": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "fin_reserva": {
+            "type": "string",
+            "format": "date-time"
+          }
+        },
+        "additionalProperties": false
+      },
+      "Reserva": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "idUsuario": {
+            "type": "string",
+            "nullable": true
+          },
+          "ipTorniquete": {
+            "type": "string",
+            "nullable": true
+          },
+          "inicioReserva": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "finReserva": {
+            "type": "string",
+            "format": "date-time"
+          }
+        },
+        "additionalProperties": false
+      },
       "UsuarioZKTeco": {
         "type": "object",
         "properties": {
@@ -259,6 +561,10 @@
           },
           "habilitado": {
             "type": "boolean"
+          },
+          "grupo": {
+            "type": "string",
+            "nullable": true
           }
         },
         "additionalProperties": false

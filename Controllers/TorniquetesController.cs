@@ -18,13 +18,35 @@ namespace API_Torniquetes.Controllers
             this.scopeFactory = scopeFactory;
         }
 
-        [HttpPost(Name = "Conectar")]
-        public string Conectar(string ip, int puerto = 4370)
+        [HttpGet("verificar")]
+        public ActionResult VerificarConexionAPI()
+        {
+            return Ok(new
+            {
+                message = "API conectada correctamente"
+            });
+        }
+
+        [HttpGet(Name = "Conectar")]
+        public ActionResult Conectar(string ip, int puerto = 4370)
         {
             using var scope = scopeFactory.CreateScope();
             var zKTecoService = scope.ServiceProvider.GetRequiredService<IZKTecoService>();
 
-            return zKTecoService.Conectar(ip, puerto);
+            string respuesta = zKTecoService.Conectar(ip, puerto);
+
+            if (respuesta.Contains("Error"))
+            {
+                return NotFound(new
+                {
+                    conectado = false
+                });
+            }
+
+            return Ok(new
+            {
+                conectado = true
+            });
         }
 
         [HttpGet("usuarios")]

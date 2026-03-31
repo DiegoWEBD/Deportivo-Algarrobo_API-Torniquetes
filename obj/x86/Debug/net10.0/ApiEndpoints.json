@@ -3,7 +3,7 @@
     "ContainingType": "API_Torniquetes.Controllers.TorniquetesController",
     "Method": "Conectar",
     "RelativePath": "api/Torniquetes",
-    "HttpMethod": "POST",
+    "HttpMethod": "GET",
     "IsController": true,
     "Order": 0,
     "Parameters": [
@@ -18,17 +18,7 @@
         "IsRequired": false
       }
     ],
-    "ReturnTypes": [
-      {
-        "Type": "System.String",
-        "MediaTypes": [
-          "text/plain",
-          "application/json",
-          "text/json"
-        ],
-        "StatusCode": 200
-      }
-    ],
+    "ReturnTypes": [],
     "EndpointName": "Conectar"
   },
   {
@@ -300,5 +290,15 @@
         "StatusCode": 200
       }
     ]
+  },
+  {
+    "ContainingType": "API_Torniquetes.Controllers.TorniquetesController",
+    "Method": "VerificarConexionAPI",
+    "RelativePath": "api/Torniquetes/verificar",
+    "HttpMethod": "GET",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [],
+    "ReturnTypes": []
   }
 ]

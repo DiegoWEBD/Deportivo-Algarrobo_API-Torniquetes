@@ -5,8 +5,20 @@
     "version": "1.0"
   },
   "paths": {
+    "/api/Torniquetes/verificar": {
+      "get": {
+        "tags": [
+          "Torniquetes"
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
     "/api/Torniquetes": {
-      "post": {
+      "get": {
         "tags": [
           "Torniquetes"
         ],
@@ -31,24 +43,7 @@
         ],
         "responses": {
           "200": {
-            "description": "OK",
-            "content": {
-              "text/plain": {
-                "schema": {
-                  "type": "string"
-                }
-              },
-              "application/json": {
-                "schema": {
-                  "type": "string"
-                }
-              },
-              "text/json": {
-                "schema": {
-                  "type": "string"
-                }
-              }
-            }
+            "description": "OK"
           }
         }
       }
