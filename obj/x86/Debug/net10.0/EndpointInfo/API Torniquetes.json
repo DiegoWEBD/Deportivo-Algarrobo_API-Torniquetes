@@ -142,7 +142,7 @@
         }
       }
     },
-    "/api/Torniquetes/usuarios/estado": {
+    "/api/Torniquetes/usuarios/{userId}/estado": {
       "post": {
         "tags": [
           "Torniquetes"
@@ -157,7 +157,8 @@
           },
           {
             "name": "userId",
-            "in": "query",
+            "in": "path",
+            "required": true,
             "schema": {
               "type": "string"
             }
@@ -275,7 +276,7 @@
         }
       }
     },
-    "/api/Torniquetes/usuarios/{userId}/copiar": {
+    "/api/Torniquetes/usuarios/{userId}/sincronizar": {
       "post": {
         "tags": [
           "Torniquetes"
@@ -311,7 +312,7 @@
         }
       }
     },
-    "/api/Torniquetes/firmware": {
+    "/api/Torniquetes/usuario/{userId}/huellas": {
       "get": {
         "tags": [
           "Torniquetes"
@@ -325,12 +326,11 @@
             }
           },
           {
-            "name": "puerto",
-            "in": "query",
+            "name": "userId",
+            "in": "path",
+            "required": true,
             "schema": {
-              "type": "integer",
-              "format": "int32",
-              "default": 4370
+              "type": "string"
             }
           }
         ],
@@ -341,7 +341,7 @@
         }
       }
     },
-    "/api/Torniquetes/algoritmo": {
+    "/api/Torniquetes/firmware": {
       "get": {
         "tags": [
           "Torniquetes"
@@ -462,6 +462,34 @@
             }
           }
         },
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/api/Torniquetes/clonar": {
+      "post": {
+        "tags": [
+          "Torniquetes"
+        ],
+        "parameters": [
+          {
+            "name": "ipOrigen",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "ipDestino",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
         "responses": {
           "200": {
             "description": "OK"

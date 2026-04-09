@@ -23,20 +23,20 @@
   },
   {
     "ContainingType": "API_Torniquetes.Controllers.TorniquetesController",
-    "Method": "ObtenerAlgoritmo",
-    "RelativePath": "api/Torniquetes/algoritmo",
-    "HttpMethod": "GET",
+    "Method": "ClonarDispositivo",
+    "RelativePath": "api/Torniquetes/clonar",
+    "HttpMethod": "POST",
     "IsController": true,
     "Order": 0,
     "Parameters": [
       {
-        "Name": "ip",
+        "Name": "ipOrigen",
         "Type": "System.String",
         "IsRequired": false
       },
       {
-        "Name": "puerto",
-        "Type": "System.Int32",
+        "Name": "ipDestino",
+        "Type": "System.String",
         "IsRequired": false
       }
     ],
@@ -117,6 +117,27 @@
         "Name": "ip",
         "Type": "System.String",
         "IsRequired": false
+      }
+    ],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "API_Torniquetes.Controllers.TorniquetesController",
+    "Method": "ObtenerHuellasUsuario",
+    "RelativePath": "api/Torniquetes/usuario/{userId}/huellas",
+    "HttpMethod": "GET",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "ip",
+        "Type": "System.String",
+        "IsRequired": false
+      },
+      {
+        "Name": "userId",
+        "Type": "System.String",
+        "IsRequired": true
       }
     ],
     "ReturnTypes": []
@@ -216,8 +237,39 @@
   },
   {
     "ContainingType": "API_Torniquetes.Controllers.TorniquetesController",
-    "Method": "CopiarUsuarioConHuellas",
-    "RelativePath": "api/Torniquetes/usuarios/{userId}/copiar",
+    "Method": "CambiarEstadoUsuario",
+    "RelativePath": "api/Torniquetes/usuarios/{userId}/estado",
+    "HttpMethod": "POST",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "ip",
+        "Type": "System.String",
+        "IsRequired": false
+      },
+      {
+        "Name": "userId",
+        "Type": "System.String",
+        "IsRequired": true
+      },
+      {
+        "Name": "habilitar",
+        "Type": "System.Boolean",
+        "IsRequired": false
+      },
+      {
+        "Name": "puerto",
+        "Type": "System.Int32",
+        "IsRequired": false
+      }
+    ],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "API_Torniquetes.Controllers.TorniquetesController",
+    "Method": "SincronizarUsuarioConHuellas",
+    "RelativePath": "api/Torniquetes/usuarios/{userId}/sincronizar",
     "HttpMethod": "POST",
     "IsController": true,
     "Order": 0,
@@ -236,37 +288,6 @@
         "Name": "userId",
         "Type": "System.String",
         "IsRequired": true
-      }
-    ],
-    "ReturnTypes": []
-  },
-  {
-    "ContainingType": "API_Torniquetes.Controllers.TorniquetesController",
-    "Method": "CambiarEstadoUsuario",
-    "RelativePath": "api/Torniquetes/usuarios/estado",
-    "HttpMethod": "POST",
-    "IsController": true,
-    "Order": 0,
-    "Parameters": [
-      {
-        "Name": "ip",
-        "Type": "System.String",
-        "IsRequired": false
-      },
-      {
-        "Name": "userId",
-        "Type": "System.String",
-        "IsRequired": false
-      },
-      {
-        "Name": "habilitar",
-        "Type": "System.Boolean",
-        "IsRequired": false
-      },
-      {
-        "Name": "puerto",
-        "Type": "System.Int32",
-        "IsRequired": false
       }
     ],
     "ReturnTypes": []

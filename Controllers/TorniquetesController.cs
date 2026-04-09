@@ -78,7 +78,7 @@ namespace API_Torniquetes.Controllers
             return Ok(usuarios);
         }
 
-        [HttpPost("usuarios/estado")]
+        [HttpPost("usuarios/{userId}/estado")]
         public ActionResult CambiarEstadoUsuario(string ip, string userId, bool habilitar, int puerto = 4370)
         {
             using var scope = scopeFactory.CreateScope();
@@ -138,18 +138,47 @@ namespace API_Torniquetes.Controllers
             return Ok(resultado);
         }
 
-        [HttpPost("usuarios/{userId}/copiar")]
-        public ActionResult CopiarUsuarioConHuellas(string ipOrigen, string ipDestino, string userId)
+        [HttpPost("usuarios/{userId}/sincronizar")]
+        public ActionResult SincronizarUsuarioConHuellas(string ipOrigen, string ipDestino, string userId)
         {
             using var scope = scopeFactory.CreateScope();
             var zKTecoService = scope.ServiceProvider.GetRequiredService<IZKTecoService>();
+            var reservasService = scope.ServiceProvider.GetRequiredService<IReservasService>();
 
             var resultado = zKTecoService.CopiarUsuarioConHuellas(ipOrigen, ipDestino, userId);
 
             if (resultado.Contains("Error"))
                 return BadRequest(resultado);
 
+            bool habilitadoPorDefecto = false;
+            reservasService.RegistrarUsuarioEnBD(userId, ipDestino, habilitadoPorDefecto);
+
             return Ok(resultado);
+        }
+
+        [HttpGet("usuario/{userId}/huellas")]
+        public ActionResult ObtenerHuellasUsuario(string ip, string userId)
+        {
+            using var scope = scopeFactory.CreateScope();
+            var zKTecoService = scope.ServiceProvider.GetRequiredService<IZKTecoService>();
+
+            var conexion = zKTecoService.Conectar(ip, PUERTO);
+
+            if (!conexion.Contains("Conectado"))
+                return BadRequest(conexion);
+
+            var huellas = zKTecoService.ObtenerHuellasUsuario(userId);
+
+            zKTecoService.Desconectar();
+
+            if (huellas.Contains("Error"))
+                return BadRequest(huellas);
+
+            return Ok(new
+            {
+                ip,
+                huellas
+            });
         }
 
         [HttpGet("firmware")]
@@ -174,31 +203,6 @@ namespace API_Torniquetes.Controllers
             {
                 ip,
                 firmware
-            });
-        }
-
-        [HttpGet("algoritmo")]
-        public ActionResult ObtenerAlgoritmo(string ip, int puerto = 4370)
-        {
-            using var scope = scopeFactory.CreateScope();
-            var zKTecoService = scope.ServiceProvider.GetRequiredService<IZKTecoService>();
-
-            var conexion = zKTecoService.Conectar(ip, puerto);
-
-            if (!conexion.Contains("Conectado"))
-                return BadRequest(conexion);
-
-            var algoritmo = zKTecoService.ObtenerAlgoritmoBiometrico();
-
-            zKTecoService.Desconectar();
-
-            if (algoritmo.Contains("Error"))
-                return BadRequest(algoritmo);
-
-            return Ok(new
-            {
-                ip,
-                algoritmo
             });
         }
 
@@ -259,6 +263,42 @@ namespace API_Torniquetes.Controllers
                     mensaje = ex.Message
                 });
             }
+        }
+
+        [HttpPost("clonar")]
+        public ActionResult ClonarDispositivo(string ipOrigen, string ipDestino)
+        {
+            using var scope = scopeFactory.CreateScope();
+            var zKTecoService = scope.ServiceProvider.GetRequiredService<IZKTecoService>();
+
+            if (string.IsNullOrWhiteSpace(ipOrigen) ||
+                string.IsNullOrWhiteSpace(ipDestino))
+            {
+                return BadRequest(new
+                {
+                    correcto = false,
+                    mensaje = "Debe indicar ipOrigen e ipDestino"
+                });
+            }
+
+            var resultado = zKTecoService.ClonarDispositivo(ipOrigen, ipDestino);
+
+            if (resultado.Contains("Error") || resultado.Contains("No conecta"))
+            {
+                return BadRequest(new
+                {
+                    correcto = false,
+                    mensaje = resultado
+                });
+            }
+
+            return Ok(new
+            {
+                correcto = true,
+                mensaje = resultado,
+                origen = ipOrigen,
+                destino = ipDestino
+            });
         }
     }
 }

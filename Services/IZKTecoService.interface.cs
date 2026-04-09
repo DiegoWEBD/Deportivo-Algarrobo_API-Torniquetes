@@ -14,6 +14,7 @@ namespace API_Torniquetes.Services
         string ActualizarNombreUsuario(string userId, string nombre);
         string CopiarUsuarioConHuellas(string ipOrigen, string ipDestino, string userId);
         string ObtenerFirmware();
-        string ObtenerAlgoritmoBiometrico();
+        List<string> ObtenerHuellasUsuario(string userId);
+        string ClonarDispositivo(string ipOrigen, string ipDestino);
     }
 }
