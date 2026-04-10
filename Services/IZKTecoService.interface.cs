@@ -16,5 +16,6 @@ namespace API_Torniquetes.Services
         string ObtenerFirmware();
         List<string> ObtenerHuellasUsuario(string userId);
         string ClonarDispositivo(string ipOrigen, string ipDestino);
+        string ReiniciarDispositivo(string ip, int puerto = 4370);
     }
 }

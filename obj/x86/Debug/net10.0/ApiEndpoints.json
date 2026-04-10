@@ -65,6 +65,27 @@
   },
   {
     "ContainingType": "API_Torniquetes.Controllers.TorniquetesController",
+    "Method": "ReiniciarDispositivo",
+    "RelativePath": "api/Torniquetes/reiniciar",
+    "HttpMethod": "POST",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "ip",
+        "Type": "System.String",
+        "IsRequired": false
+      },
+      {
+        "Name": "puerto",
+        "Type": "System.Int32",
+        "IsRequired": false
+      }
+    ],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "API_Torniquetes.Controllers.TorniquetesController",
     "Method": "ObtenerReservasActivas",
     "RelativePath": "api/Torniquetes/reservas",
     "HttpMethod": "GET",

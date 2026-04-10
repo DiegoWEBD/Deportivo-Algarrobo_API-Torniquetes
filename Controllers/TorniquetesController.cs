@@ -300,5 +300,40 @@ namespace API_Torniquetes.Controllers
                 destino = ipDestino
             });
         }
+
+        [HttpPost("reiniciar")]
+        public ActionResult ReiniciarDispositivo(string ip, int puerto = 4370)
+        {
+            using var scope = scopeFactory.CreateScope();
+            var zktecoService = scope.ServiceProvider.GetRequiredService<IZKTecoService>();
+
+            if (string.IsNullOrWhiteSpace(ip))
+            {
+                return BadRequest(new
+                {
+                    correcto = false,
+                    mensaje = "Debe indicar la IP del dispositivo"
+                });
+            }
+
+            var resultado = zktecoService.ReiniciarDispositivo(ip, puerto);
+
+            if (resultado.Contains("Error") || resultado.Contains("No conecta"))
+            {
+                return BadRequest(new
+                {
+                    correcto = false,
+                    mensaje = resultado,
+                    ip
+                });
+            }
+
+            return Ok(new
+            {
+                correcto = true,
+                mensaje = resultado,
+                ip
+            });
+        }
     }
 }
