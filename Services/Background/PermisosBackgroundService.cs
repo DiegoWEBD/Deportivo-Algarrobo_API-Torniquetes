@@ -98,12 +98,27 @@ namespace API_Torniquetes.Services.Background
                 Console.WriteLine($"{DateTime.Now}. Actualizando estados vencidos.");
                 foreach (var entry in estadosVencidos)
                 {
-                    string ipTorniquete = entry.Key;
-                    var respuestaConexion = zktecoService.Conectar(ipTorniquete);
+                    var respuestaConexion = zktecoService.Conectar(entry.Key);
+                    //if (respuestaConexion.Contains("Error")) continue;
 
-                    if (respuestaConexion.Contains("Error")) continue;
+                    var resultados = zktecoService.CambiarEstadoUsuarios(entry.Value);
 
-                    zktecoService.CambiarEstadoUsuarios(entry.Value);
+                    foreach (var resultado in resultados)
+                    {
+                        if (resultado.Exito)
+                        {
+                            reservasService.CambiarEstadoUsuario(
+                                resultado.IdUsuario,
+                                entry.Key,
+                                resultado.NuevoEstadoHabilitado
+                            );
+                        }
+                        else
+                        {
+                            Console.WriteLine($"Falló usuario {resultado.IdUsuario} en {resultado.IpTorniquete}, error {resultado.CodigoError}");
+                        }
+                    }
+
                     zktecoService.Desconectar();
                 }
             }

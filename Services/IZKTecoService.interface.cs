@@ -9,7 +9,7 @@ namespace API_Torniquetes.Services
         void Desconectar();
         List<UsuarioZKTeco> ObtenerUsuarios();
         string CambiarEstadoUsuario(string userId, bool habilitar);
-        string CambiarEstadoUsuarios(List<UsuarioEstadoVencido> usuarios);
+        List<ResultadoCambioEstado> CambiarEstadoUsuarios(List<UsuarioEstadoVencido> usuarios);
         UsuarioZKTeco? ObtenerUsuarioPorId(string userId);
         string ActualizarNombreUsuario(string userId, string nombre);
         string CopiarUsuarioConHuellas(string rut, string[] ipsDestino);

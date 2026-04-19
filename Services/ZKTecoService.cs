@@ -1,11 +1,19 @@
 ﻿using API_Torniquetes.Models;
 using API_Torniquetes.Models.Usuarios;
 using API_Torniquetes.Services.Reservas;
-using System.Reflection.PortableExecutable;
 using zkemkeeper;
 
 namespace API_Torniquetes.Services
 {
+    public class ResultadoCambioEstado
+    {
+        public string IdUsuario { get; set; }
+        public string IpTorniquete { get; set; }
+        public bool Exito { get; set; }
+        public bool NuevoEstadoHabilitado { get; set; }
+        public int? CodigoError { get; set; }
+    }
+
     public class ZKTecoService : IZKTecoService
     {
         private readonly IServiceScopeFactory scopeFactory;
@@ -108,21 +116,16 @@ namespace API_Torniquetes.Services
                 : "Usuario deshabilitado correctamente";
         }
 
-        public string CambiarEstadoUsuarios(List<UsuarioEstadoVencido> usuarios)
+        public List<ResultadoCambioEstado> CambiarEstadoUsuarios(List<UsuarioEstadoVencido> usuarios)
         {
-            Console.WriteLine("Deshabilitando torniquete");
-            if (!zk.EnableDevice(1, false))
-            {
-                Console.WriteLine("No se pudo deshabilitar el torniquete");
-                return "No se pudo deshabilitar el torniquete";
-            }
-                
+            var resultados = new List<ResultadoCambioEstado>();
+
+            zk.EnableDevice(1, false);
 
             if (!zk.ReadAllUserID(1))
             {
-                Console.WriteLine("No se pudieron leer los usuarios");
                 zk.EnableDevice(1, true);
-                return "No se pudieron leer los usuarios";
+                throw new Exception("No se pudieron leer los usuarios");
             }
 
             zk.RefreshData(1);
@@ -133,24 +136,31 @@ namespace API_Torniquetes.Services
                     ? ID_GRUPO_USUARIOS_HABILITADOS
                     : ID_GRUPO_USUARIOS_DESHABILITADOS;
 
-                Console.WriteLine("Cambiando al usuario de grupo");
                 bool ok = zk.SetUserGroup(1, int.Parse(usuario.idUsuario), grupo);
+
+                int? error = null;
 
                 if (!ok)
                 {
-                    int error = 0;
-                    zk.GetLastError(ref error);
-                    Console.WriteLine($"No se pudo cambiar al usuario de grupo: Error ({error})");
-                    continue;
+                    int err = 0;
+                    zk.GetLastError(ref err);
+                    error = err;
                 }
 
-                Console.WriteLine($"{DateTime.Now}. Usuario {usuario.idUsuario} {(usuario.nuevoEstadoHabilitado ? "habilitado" : "deshabilitado")} en torniquete {usuario.ipTorniquete}.");
+                resultados.Add(new ResultadoCambioEstado
+                {
+                    IdUsuario = usuario.idUsuario,
+                    IpTorniquete = usuario.ipTorniquete,
+                    NuevoEstadoHabilitado = usuario.nuevoEstadoHabilitado,
+                    Exito = ok,
+                    CodigoError = error
+                });
             }
 
             zk.RefreshData(1);
             zk.EnableDevice(1, true);
 
-            return "Usuarios actualizados";
+            return resultados;
         }
 
         /*
