@@ -7,64 +7,8 @@ namespace API_Torniquetes.Repositories.Reservas
 {
     public class ReservaRepository : IReservaRepository
     {
-        private readonly string dbConnectionString = "Server=localhost\\SQLEXPRESS;Database=Torniquetes_Permisos;Trusted_Connection=True;TrustServerCertificate=True;";
-        //private readonly string dbConnectionString = "Server = 192.168.1.5; Database = Torniquetes_Permisos; User Id = admin_torniquetes; Password=u6B3X_a8dZ; TrustServerCertificate=True;";
-
-        public Reserva Add(Reserva reserva)
-        {
-            using SqlConnection connection = new(dbConnectionString);
-            connection.Open();
-
-            using SqlTransaction transaction = connection.BeginTransaction();
-
-            try
-            {
-                // reserva
-                string queryReserva = @"
-                    insert into Reserva(id, id_usuario, ip_torniquete, inicio_reserva, fin_reserva)
-                    values (@id, @id_usuario, @ip_torniquete, @inicio_reserva, @fin_reserva)
-                ";
-
-                using SqlCommand commandReserva = new(queryReserva, connection, transaction);
-
-                commandReserva.Parameters.Add("@id", SqlDbType.Int).Value = reserva.id;
-                commandReserva.Parameters.Add("@id_usuario", SqlDbType.NVarChar).Value = reserva.idUsuario;
-                commandReserva.Parameters.Add("@ip_torniquete", SqlDbType.NVarChar).Value = reserva.ipTorniquete;
-                commandReserva.Parameters.Add("@inicio_reserva", SqlDbType.DateTime).Value = reserva.inicioReserva;
-                commandReserva.Parameters.Add("@fin_reserva", SqlDbType.DateTime).Value = reserva.finReserva;
-
-                commandReserva.ExecuteScalar();
-
-                // estado acceso
-                string queryEstado = @"
-                    insert into EstadoAcceso(id_usuario, ip_torniquete, habilitado)
-                    select @id_usuario, @ip_torniquete, @habilitado
-                    where not exists (
-                        select 1
-                        from EstadoAcceso
-                        where id_usuario = @id_usuario
-                        and ip_torniquete = @ip_torniquete
-                    )
-                ";
-
-                using SqlCommand commandEstado = new(queryEstado, connection, transaction);
-
-                commandEstado.Parameters.Add("@id_usuario", SqlDbType.NVarChar).Value = reserva.idUsuario;
-                commandEstado.Parameters.Add("@ip_torniquete", SqlDbType.NVarChar).Value = reserva.ipTorniquete;
-                commandEstado.Parameters.Add("@habilitado", SqlDbType.Bit).Value = false;
-
-                commandEstado.ExecuteNonQuery();
-
-                transaction.Commit();
-
-                return reserva;
-            }
-            catch
-            {
-                transaction.Rollback();
-                throw;
-            }
-        }
+        //private readonly string dbConnectionString = "Server=localhost\\SQLEXPRESS;Database=Torniquetes_Permisos;Trusted_Connection=True;TrustServerCertificate=True;";
+        private readonly string dbConnectionString = "Server = 201.148.104.16; Database = reservas_Algarrobo; User Id = reservas_admin_redysolutions; Password=cX970htvSk; TrustServerCertificate=True;";
 
         public List<Reserva> ObtenerReservasActivas(DateTime fecha)
         {
@@ -117,28 +61,47 @@ namespace API_Torniquetes.Repositories.Reservas
             return reservas;
         }
 
-        public int RegistrarUsuarioEnBD(string idUsuario, string ipTorniquete, bool habilitado)
+        public int RegistrarUsuarioEnBD(string rutUsuario, string ipTorniquete, bool habilitado)
         {
+            int filasAfectadas = 0;
+            string[] partesRut = rutUsuario.Split('-');
+            string idUsuario;
+            string rut;
+
+            if(partesRut.Length == 2)
+            {
+                idUsuario = partesRut[0];
+                rut = rutUsuario;
+            }
+            else
+            {
+                idUsuario = rutUsuario;
+                rut = "NULL";
+            }
+
             using SqlConnection connection = new(dbConnectionString);
             connection.Open();
 
             string query = @"
-                insert into EstadoAcceso(id_usuario, ip_torniquete, habilitado)
-                select @id_usuario, @ip_torniquete, @habilitado
-                where not exists (
-                    select 1
-                    from EstadoAcceso
-                    where id_usuario = @id_usuario
-                    and ip_torniquete = @ip_torniquete
-                )";
+                update EstadoAcceso
+                set habilitado = @habilitado
+                where id_usuario = @id_usuario
+                and ip_torniquete = @ip_torniquete;
+
+                if @@ROWCOUNT = 0
+                begin
+                    insert into EstadoAcceso (id_usuario, ip_torniquete, habilitado, rut_usuario)
+                    values (@id_usuario, @ip_torniquete, @habilitado, @rut_usuario);
+                end";
 
             using SqlCommand command = new(query, connection);
 
             command.Parameters.Add("@id_usuario", SqlDbType.NVarChar).Value = idUsuario;
             command.Parameters.Add("@ip_torniquete", SqlDbType.NVarChar).Value = ipTorniquete;
             command.Parameters.Add("@habilitado", SqlDbType.Bit).Value = habilitado;
+            command.Parameters.Add("@rut_usuario", SqlDbType.NVarChar).Value = rut;
 
-            int filasAfectadas = command.ExecuteNonQuery();
+            filasAfectadas = command.ExecuteNonQuery();
 
             return filasAfectadas;
         }
@@ -153,24 +116,34 @@ namespace API_Torniquetes.Repositories.Reservas
                 select *
                 from (
                     select
-                        EA.id_usuario,
-                        EA.ip_torniquete,
-                        EA.habilitado as estado_actual,
+                        ea.id_usuario,
+                        ea.ip_torniquete,
+                        ea.habilitado as estado_actual,
 
                         case
+                            when u.idPerfil in (1, 2, 3) then 1
+
                             when exists (
                                 select 1
-                                from Reserva R
-                                where R.id_usuario = EA.id_usuario
-                                  and R.ip_torniquete = EA.ip_torniquete
-                                  and getdate() >= R.inicio_reserva
-                                  and getdate() <= R.fin_reserva
-                            )
-                            then 1
+                                from reserva r
+                                inner join calendario c
+                                    on r.FkCalendario = c.IdCalendario
+                                inner join clase cl
+                                    on c.Fk_Clase = cl.IdClases
+                                inner join sala s
+                                    on cl.IdSala = s.id
+                                where r.UserName = ea.rut_usuario
+                                  and s.ip_torniquete = ea.ip_torniquete
+                                  and getdate() >= r.inicio_reserva
+                                  and getdate() <= r.fin_reserva
+                            ) then 1
+
                             else 0
                         end as estado_deseado
 
-                    from EstadoAcceso EA
+                    from estadoacceso ea
+                    left join usuario u
+                        on ea.rut_usuario = u.UserName
                 ) aux
                 where estado_actual <> estado_deseado";
 

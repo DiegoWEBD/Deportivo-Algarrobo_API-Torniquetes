@@ -21,30 +21,6 @@ namespace API_Torniquetes.Services.Reservas
             return reservaRepository.RegistrarUsuarioEnBD(idUsuario, ipTorniquete, habilitado);
         }
 
-        public bool RegistrarReservaDeClase(int id, string rutUsuario, string ipTorniquete, DateTime inicioReserva, DateTime finReserva)
-        {
-            string[] arrayRutUsuario = rutUsuario.Split('-');
-
-            if(arrayRutUsuario.Length != 2)
-            {
-                throw new Exception("Rut de usuario inválido");
-            }
-
-            string idUsuario = arrayRutUsuario[0];
-
-            Reserva reserva = new()
-            { 
-                id = id,
-                idUsuario = idUsuario,
-                ipTorniquete = ipTorniquete,
-                inicioReserva = inicioReserva,
-                finReserva = finReserva
-            };
-
-            reservaRepository.Add(reserva);
-            return true;
-        }
-
         public Dictionary<string, List<UsuarioEstadoVencido>> ObtenerUsuariosConNuevoEstado()
         {
             return reservaRepository.ObtenerUsuariosConNuevoEstado();

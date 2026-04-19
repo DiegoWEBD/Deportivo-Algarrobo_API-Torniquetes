@@ -14,7 +14,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("API Torniquetes")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+490ae67964358faeb24e692ca3b854b1b1461c71")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+3e3c7a27dc01b41056646a82416fe8170077e6fa")]
 [assembly: System.Reflection.AssemblyProductAttribute("API Torniquetes")]
 [assembly: System.Reflection.AssemblyTitleAttribute("API Torniquetes")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]

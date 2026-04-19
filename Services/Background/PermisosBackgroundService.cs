@@ -33,7 +33,7 @@ namespace API_Torniquetes.Services.Background
             }
         }
 
-        private async Task EjecutarProceso()
+        /*private async Task EjecutarProceso()
         {
             var stopwatch = Stopwatch.StartNew();
             Console.WriteLine($"{DateTime.Now}. Proceso iniciado.");
@@ -76,6 +76,43 @@ namespace API_Torniquetes.Services.Background
             Console.WriteLine(
                 $"{DateTime.Now}. Proceso finalizado ({actualizados} estados actualizados). " +
                 $"Tiempo total: {stopwatch.Elapsed.TotalSeconds:F2} segundos");
+
+            await Task.CompletedTask;
+        }*/
+
+        private async Task EjecutarProceso()
+        {
+            var stopwatch = Stopwatch.StartNew();
+            Console.WriteLine($"{DateTime.Now}. Proceso iniciado.");
+
+            using var scope = scopeFactory.CreateScope();
+
+            var reservasService = scope.ServiceProvider.GetRequiredService<IReservasService>();
+            var zktecoService = scope.ServiceProvider.GetRequiredService<IZKTecoService>();
+
+            try
+            {
+                Console.WriteLine($"{DateTime.Now}. Obteniendo estados vencidos.");
+                var estadosVencidos = reservasService.ObtenerUsuariosConNuevoEstado();
+
+                Console.WriteLine($"{DateTime.Now}. Actualizando estados vencidos.");
+                foreach (var entry in estadosVencidos)
+                {
+                    string ipTorniquete = entry.Key;
+                    var respuestaConexion = zktecoService.Conectar(ipTorniquete);
+
+                    if (respuestaConexion.Contains("Error")) continue;
+
+                    zktecoService.CambiarEstadoUsuarios(entry.Value);
+                    zktecoService.Desconectar();
+                }
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Error: {ex.Message}");
+            }
+
+            stopwatch.Stop();
 
             await Task.CompletedTask;
         }

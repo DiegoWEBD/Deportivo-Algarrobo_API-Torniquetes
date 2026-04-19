@@ -12,7 +12,8 @@ namespace API_Torniquetes.Services
         string CambiarEstadoUsuarios(List<UsuarioEstadoVencido> usuarios);
         UsuarioZKTeco? ObtenerUsuarioPorId(string userId);
         string ActualizarNombreUsuario(string userId, string nombre);
-        string CopiarUsuarioConHuellas(string ipOrigen, string ipDestino, string userId);
+        string CopiarUsuarioConHuellas(string rut, string[] ipsDestino);
+        string CopiarUsuariosConHuellas(string ipOrigen, string ipDestino);
         string ObtenerFirmware();
         string ObtenerAlgoritmoBiometrico();
     }

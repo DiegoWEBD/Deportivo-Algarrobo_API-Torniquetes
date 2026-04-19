@@ -275,7 +275,48 @@
         }
       }
     },
-    "/api/Torniquetes/usuarios/{userId}/copiar": {
+    "/api/Torniquetes/usuarios/{rut}/sincronizar-torniquetes": {
+      "post": {
+        "tags": [
+          "Torniquetes"
+        ],
+        "parameters": [
+          {
+            "name": "rut",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/SincronizarUsuarioRequest"
+              }
+            },
+            "text/json": {
+              "schema": {
+                "$ref": "#/components/schemas/SincronizarUsuarioRequest"
+              }
+            },
+            "application/*+json": {
+              "schema": {
+                "$ref": "#/components/schemas/SincronizarUsuarioRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/api/Torniquetes/usuarios/sincronizar-torniquetes": {
       "post": {
         "tags": [
           "Torniquetes"
@@ -291,14 +332,6 @@
           {
             "name": "ipDestino",
             "in": "query",
-            "schema": {
-              "type": "string"
-            }
-          },
-          {
-            "name": "userId",
-            "in": "path",
-            "required": true,
             "schema": {
               "type": "string"
             }
@@ -438,66 +471,11 @@
             }
           }
         }
-      },
-      "post": {
-        "tags": [
-          "Torniquetes"
-        ],
-        "requestBody": {
-          "content": {
-            "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/RegistrarReservaRequest"
-              }
-            },
-            "text/json": {
-              "schema": {
-                "$ref": "#/components/schemas/RegistrarReservaRequest"
-              }
-            },
-            "application/*+json": {
-              "schema": {
-                "$ref": "#/components/schemas/RegistrarReservaRequest"
-              }
-            }
-          }
-        },
-        "responses": {
-          "200": {
-            "description": "OK"
-          }
-        }
       }
     }
   },
   "components": {
     "schemas": {
-      "RegistrarReservaRequest": {
-        "type": "object",
-        "properties": {
-          "id": {
-            "type": "integer",
-            "format": "int32"
-          },
-          "rut_usuario": {
-            "type": "string",
-            "nullable": true
-          },
-          "ip_torniquete": {
-            "type": "string",
-            "nullable": true
-          },
-          "inicio_reserva": {
-            "type": "string",
-            "format": "date-time"
-          },
-          "fin_reserva": {
-            "type": "string",
-            "format": "date-time"
-          }
-        },
-        "additionalProperties": false
-      },
       "Reserva": {
         "type": "object",
         "properties": {
@@ -520,6 +498,23 @@
           "finReserva": {
             "type": "string",
             "format": "date-time"
+          }
+        },
+        "additionalProperties": false
+      },
+      "SincronizarUsuarioRequest": {
+        "type": "object",
+        "properties": {
+          "rut": {
+            "type": "string",
+            "nullable": true
+          },
+          "ips_destino": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "nullable": true
           }
         },
         "additionalProperties": false

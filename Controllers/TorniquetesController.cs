@@ -1,4 +1,5 @@
 ﻿using API_Torniquetes.Models;
+using API_Torniquetes.Models.Http;
 using API_Torniquetes.Models.Reserva;
 using API_Torniquetes.Services;
 using API_Torniquetes.Services.Reservas;
@@ -138,13 +139,27 @@ namespace API_Torniquetes.Controllers
             return Ok(resultado);
         }
 
-        [HttpPost("usuarios/{userId}/copiar")]
-        public ActionResult CopiarUsuarioConHuellas(string ipOrigen, string ipDestino, string userId)
+        [HttpPost("usuarios/{rut}/sincronizar-torniquetes")]
+        public ActionResult CopiarUsuarioConHuellas(string rut, [FromBody] SincronizarUsuarioRequest request)
         {
             using var scope = scopeFactory.CreateScope();
             var zKTecoService = scope.ServiceProvider.GetRequiredService<IZKTecoService>();
 
-            var resultado = zKTecoService.CopiarUsuarioConHuellas(ipOrigen, ipDestino, userId);
+            var resultado = zKTecoService.CopiarUsuarioConHuellas(rut, request.ips_destino);
+
+            if (resultado.Contains("Error"))
+                return BadRequest(resultado);
+
+            return Ok(resultado);
+        }
+
+        [HttpPost("usuarios/sincronizar-torniquetes")]
+        public ActionResult CopiarUsuarioConHuellas(string ipOrigen, string ipDestino)
+        {
+            using var scope = scopeFactory.CreateScope();
+            var zKTecoService = scope.ServiceProvider.GetRequiredService<IZKTecoService>();
+
+            var resultado = zKTecoService.CopiarUsuariosConHuellas(ipOrigen, ipDestino);
 
             if (resultado.Contains("Error"))
                 return BadRequest(resultado);
@@ -238,27 +253,6 @@ namespace API_Torniquetes.Controllers
             List<Reserva> reservas = reservasService.ObtenerReservasActivas(fecha);
 
             return Ok(reservas);
-        }
-
-        [HttpPost("reservas")]
-        public ActionResult RegistrarReservaDeClase([FromBody] RegistrarReservaRequest request)
-        {
-            using var scope = scopeFactory.CreateScope();
-            var reservasService = scope.ServiceProvider.GetRequiredService<IReservasService>();
-
-            try
-            {
-                reservasService.RegistrarReservaDeClase(request.id, request.rut_usuario, request.ip_torniquete, request.inicio_reserva, request.fin_reserva);
-                return Created();
-            }
-            catch (Exception ex)
-            {
-                return BadRequest(new
-                {
-                    correcto = false,
-                    mensaje = ex.Message
-                });
-            }
         }
     }
 }

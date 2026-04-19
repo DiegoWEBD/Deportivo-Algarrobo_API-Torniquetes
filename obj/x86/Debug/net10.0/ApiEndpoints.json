@@ -91,22 +91,6 @@
   },
   {
     "ContainingType": "API_Torniquetes.Controllers.TorniquetesController",
-    "Method": "RegistrarReservaDeClase",
-    "RelativePath": "api/Torniquetes/reservas",
-    "HttpMethod": "POST",
-    "IsController": true,
-    "Order": 0,
-    "Parameters": [
-      {
-        "Name": "request",
-        "Type": "API_Torniquetes.Models.Reserva.RegistrarReservaRequest",
-        "IsRequired": true
-      }
-    ],
-    "ReturnTypes": []
-  },
-  {
-    "ContainingType": "API_Torniquetes.Controllers.TorniquetesController",
     "Method": "SincronizarUsuariosTorniqueteBD",
     "RelativePath": "api/Torniquetes/sincronizar",
     "HttpMethod": "GET",
@@ -151,6 +135,27 @@
         "StatusCode": 200
       }
     ]
+  },
+  {
+    "ContainingType": "API_Torniquetes.Controllers.TorniquetesController",
+    "Method": "CopiarUsuarioConHuellas",
+    "RelativePath": "api/Torniquetes/usuarios/{rut}/sincronizar-torniquetes",
+    "HttpMethod": "POST",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "request",
+        "Type": "API_Torniquetes.Models.Http.SincronizarUsuarioRequest",
+        "IsRequired": true
+      },
+      {
+        "Name": "rut",
+        "Type": "",
+        "IsRequired": true
+      }
+    ],
+    "ReturnTypes": []
   },
   {
     "ContainingType": "API_Torniquetes.Controllers.TorniquetesController",
@@ -216,32 +221,6 @@
   },
   {
     "ContainingType": "API_Torniquetes.Controllers.TorniquetesController",
-    "Method": "CopiarUsuarioConHuellas",
-    "RelativePath": "api/Torniquetes/usuarios/{userId}/copiar",
-    "HttpMethod": "POST",
-    "IsController": true,
-    "Order": 0,
-    "Parameters": [
-      {
-        "Name": "ipOrigen",
-        "Type": "System.String",
-        "IsRequired": false
-      },
-      {
-        "Name": "ipDestino",
-        "Type": "System.String",
-        "IsRequired": false
-      },
-      {
-        "Name": "userId",
-        "Type": "System.String",
-        "IsRequired": true
-      }
-    ],
-    "ReturnTypes": []
-  },
-  {
-    "ContainingType": "API_Torniquetes.Controllers.TorniquetesController",
     "Method": "CambiarEstadoUsuario",
     "RelativePath": "api/Torniquetes/usuarios/estado",
     "HttpMethod": "POST",
@@ -290,6 +269,27 @@
         "StatusCode": 200
       }
     ]
+  },
+  {
+    "ContainingType": "API_Torniquetes.Controllers.TorniquetesController",
+    "Method": "CopiarUsuarioConHuellas",
+    "RelativePath": "api/Torniquetes/usuarios/sincronizar-torniquetes",
+    "HttpMethod": "POST",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "ipOrigen",
+        "Type": "System.String",
+        "IsRequired": false
+      },
+      {
+        "Name": "ipDestino",
+        "Type": "System.String",
+        "IsRequired": false
+      }
+    ],
+    "ReturnTypes": []
   },
   {
     "ContainingType": "API_Torniquetes.Controllers.TorniquetesController",
