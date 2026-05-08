@@ -76,7 +76,7 @@ namespace API_Torniquetes.Repositories.Reservas
             else
             {
                 idUsuario = rutUsuario;
-                rut = "NULL";
+                rut = null;
             }
 
             using SqlConnection connection = new(dbConnectionString);
@@ -99,7 +99,7 @@ namespace API_Torniquetes.Repositories.Reservas
             command.Parameters.Add("@id_usuario", SqlDbType.NVarChar).Value = idUsuario;
             command.Parameters.Add("@ip_torniquete", SqlDbType.NVarChar).Value = ipTorniquete;
             command.Parameters.Add("@habilitado", SqlDbType.Bit).Value = habilitado;
-            command.Parameters.Add("@rut_usuario", SqlDbType.NVarChar).Value = rut;
+            command.Parameters.Add("@rut_usuario", SqlDbType.NVarChar).Value = (object?)rut ?? DBNull.Value;
 
             filasAfectadas = command.ExecuteNonQuery();
 
@@ -134,7 +134,7 @@ namespace API_Torniquetes.Repositories.Reservas
                                     on cl.IdSala = s.id
                                 where r.UserName = ea.rut_usuario
                                   and s.ip_torniquete = ea.ip_torniquete
-                                  and getdate() >= r.inicio_reserva
+                                  and getdate() >= dateadd(minute, -30, r.inicio_reserva)
                                   and getdate() <= r.fin_reserva
                             ) then 1
 
@@ -192,6 +192,43 @@ namespace API_Torniquetes.Repositories.Reservas
             command.Parameters.Add("@ip_torniquete", SqlDbType.NVarChar).Value = ipTorniquete;
 
             command.ExecuteNonQuery();
+        }
+
+        public HashSet<string> ObtenerIdUsuariosFaltantes(string ipOrigen, string ipDestino)
+        {
+            var idUsuarios = new HashSet<string>();
+
+            using var connection = new SqlConnection(dbConnectionString);
+            connection.Open();
+
+            string query = @"
+                SELECT o.id_usuario
+                FROM EstadoAcceso o
+                WHERE o.ip_torniquete = @ip_origen
+                AND NOT EXISTS (
+                    SELECT 1
+                    FROM EstadoAcceso d
+                    WHERE d.id_usuario = o.id_usuario
+                      AND d.ip_torniquete = @ip_destino
+                )
+                GROUP BY o.id_usuario";
+
+            using var command = new SqlCommand(query, connection);
+
+            command.Parameters.Add("@ip_origen", SqlDbType.NVarChar, 50).Value = ipOrigen;
+            command.Parameters.Add("@ip_destino", SqlDbType.NVarChar, 50).Value = ipDestino;
+
+            using var reader = command.ExecuteReader();
+
+            while (reader.Read())
+            {
+                if (!reader.IsDBNull(0))
+                {
+                    idUsuarios.Add(reader.GetString(0));
+                }
+            }
+
+            return idUsuarios;
         }
     }
 }

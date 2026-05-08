@@ -33,7 +33,7 @@ namespace API_Torniquetes.Services.Background
             }
         }
 
-        /*private async Task EjecutarProceso()
+        private async Task EjecutarProceso()
         {
             var stopwatch = Stopwatch.StartNew();
             Console.WriteLine($"{DateTime.Now}. Proceso iniciado.");
@@ -53,7 +53,10 @@ namespace API_Torniquetes.Services.Background
                 foreach (var entry in estadosVencidos)
                 {
                     string ipTorniquete = entry.Key;
-                    zktecoService.Conectar(ipTorniquete);
+                    var respuestaConexion = zktecoService.Conectar(ipTorniquete);
+
+                    if (respuestaConexion.Contains("Error")) continue;
+
                     zktecoService.CambiarEstadoUsuarios(entry.Value);
 
                     foreach(var usuario in entry.Value)
@@ -78,9 +81,9 @@ namespace API_Torniquetes.Services.Background
                 $"Tiempo total: {stopwatch.Elapsed.TotalSeconds:F2} segundos");
 
             await Task.CompletedTask;
-        }*/
+        }
 
-        private async Task EjecutarProceso()
+        /*private async Task EjecutarProceso()
         {
             var stopwatch = Stopwatch.StartNew();
             Console.WriteLine($"{DateTime.Now}. Proceso iniciado.");
@@ -115,6 +118,6 @@ namespace API_Torniquetes.Services.Background
             stopwatch.Stop();
 
             await Task.CompletedTask;
-        }
+        }*/
     }
 }

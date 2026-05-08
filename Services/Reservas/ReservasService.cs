@@ -30,5 +30,10 @@ namespace API_Torniquetes.Services.Reservas
         {
             reservaRepository.CambiarEstadoUsuario(idUsuario, ipTorniquete, habilitado);
         }
+
+        public HashSet<string> ObtenerIdUsuariosFaltantes(string ipOrigen, string ipDestino)
+        {
+            return reservaRepository.ObtenerIdUsuariosFaltantes(ipOrigen, ipDestino);
+        }
     }
 }

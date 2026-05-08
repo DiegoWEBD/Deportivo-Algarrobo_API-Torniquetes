@@ -153,7 +153,7 @@ namespace API_Torniquetes.Controllers
             return Ok(resultado);
         }
 
-        [HttpPost("usuarios/sincronizar-torniquetes")]
+        [HttpGet("usuarios/sincronizar-torniquetes")]
         public ActionResult CopiarUsuarioConHuellas(string ipOrigen, string ipDestino)
         {
             using var scope = scopeFactory.CreateScope();

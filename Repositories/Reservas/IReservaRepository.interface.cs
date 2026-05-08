@@ -9,5 +9,6 @@ namespace API_Torniquetes.Repositories.Reservas
         int RegistrarUsuarioEnBD(string rutUsuario, string ipTorniquete, bool habilitado);
         Dictionary<string, List<UsuarioEstadoVencido>> ObtenerUsuariosConNuevoEstado();
         void CambiarEstadoUsuario(string idUsuario, string ipTorniquete, bool habilitado);
+        HashSet<string> ObtenerIdUsuariosFaltantes(string ipOrigen, string ipDestino);
     }
 }
