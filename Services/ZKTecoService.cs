@@ -13,6 +13,7 @@ namespace API_Torniquetes.Services
         private static string IP_TORNIQUETE_ENROLADOR = "192.168.1.7";
         private static int ID_GRUPO_USUARIOS_HABILITADOS = 1;
         private static int ID_GRUPO_USUARIOS_DESHABILITADOS = 2;
+        private static int PUERTO = 4370;
 
         public ZKTecoService(IServiceScopeFactory scopeFactory)
         {
@@ -70,62 +71,86 @@ namespace API_Torniquetes.Services
         }
 
 
-        public string CambiarEstadoUsuario(string userId, bool habilitar)
+        public string CambiarEstadoUsuario(string userId, bool habilitar, string ip)
         {
-            const int grupoUsuariosHabilitados = 1;
-            const int grupoUsuariosDeshabilitados = 2;
-            int grupo = habilitar ? grupoUsuariosHabilitados : grupoUsuariosDeshabilitados;
+            IZKEM zkteco = new CZKEMClass();
+
+            bool conectado = zkteco.Connect_Net(ip, PUERTO);
+
+            if (!conectado)
+            {
+                int error = 0;
+                zkteco.GetLastError(ref error);
+                return $"Error al conectar al torniquete {ip}: {error}";
+            }
+
+            int grupo = habilitar ? ID_GRUPO_USUARIOS_HABILITADOS : ID_GRUPO_USUARIOS_DESHABILITADOS;
 
             // Deshabilitar equipo temporalmente
-            if (!zk.EnableDevice(1, false))
+            if (!zkteco.EnableDevice(1, false))
                 return "No se pudo deshabilitar el equipo";
 
             // Cargar usuarios
-            if (!zk.ReadAllUserID(1))
+            if (!zkteco.ReadAllUserID(1))
             {
-                zk.EnableDevice(1, true);
+                zkteco.EnableDevice(1, true);
                 return "No se pudieron leer los usuarios";
             }
 
-            zk.RefreshData(1);
+            zkteco.RefreshData(1);
 
             // Cambiar grupo
-            bool resultado = zk.SetUserGroup(1, int.Parse(userId), grupo);
+            bool resultado = zkteco.SetUserGroup(1, int.Parse(userId), grupo);
 
             if (!resultado)
             {
                 int error = 0;
-                zk.GetLastError(ref error);
-                zk.EnableDevice(1, true);
+                zkteco.GetLastError(ref error);
+                zkteco.EnableDevice(1, true);
                 return $"Error al cambiar estado del usuario: {error}";
             }
 
-            zk.RefreshData(1);
-            zk.EnableDevice(1, true);
+            zkteco.RefreshData(1);
+            zkteco.EnableDevice(1, true);
+            zkteco.Disconnect();
 
             return habilitar
                 ? "Usuario habilitado correctamente"
                 : "Usuario deshabilitado correctamente";
         }
 
-        public string CambiarEstadoUsuarios(List<UsuarioEstadoVencido> usuarios)
+        public string CambiarEstadoUsuarios(List<UsuarioEstadoVencido> usuarios, string ip, IReservasService reservasService)
         {
-            Console.WriteLine("Deshabilitando torniquete");
-            if (!zk.EnableDevice(1, false))
+            IZKEM zkteco = new CZKEMClass();
+
+            reservasService.RegistrarLog("Iniciando conexión", ip, "INFO");
+            bool conectado = zkteco.Connect_Net(ip, PUERTO);      
+
+            if (!conectado)
             {
-                Console.WriteLine("No se pudo deshabilitar el torniquete");
-                return "No se pudo deshabilitar el torniquete";
+                int error = 0;
+                zkteco.GetLastError(ref error);
+                reservasService.RegistrarLog($"Error de conexión. (Error Zkteco: {error})", ip, "ERROR");
+                return $"Error al conectar al torniquete {ip}: {error}";
+            }
+
+            reservasService.RegistrarLog("Conexión establecida", ip, "INFO");
+
+            if (!zkteco.EnableDevice(1, false))
+            {
+                reservasService.RegistrarLog("Error al deshabilitar equipo", ip, "ERROR");
+                return "Error al deshabilitar el torniquete";
             }
                 
 
-            if (!zk.ReadAllUserID(1))
+            if (!zkteco.ReadAllUserID(1))
             {
-                Console.WriteLine("No se pudieron leer los usuarios");
-                zk.EnableDevice(1, true);
-                return "No se pudieron leer los usuarios";
+                zkteco.EnableDevice(1, true);
+                return "Error al leer los usuarios";
             }
+            reservasService.RegistrarLog("Información de usuarios obtenida", ip, "INFO");
 
-            zk.RefreshData(1);
+            zkteco.RefreshData(1);
 
             foreach (var usuario in usuarios)
             {
@@ -133,22 +158,23 @@ namespace API_Torniquetes.Services
                     ? ID_GRUPO_USUARIOS_HABILITADOS
                     : ID_GRUPO_USUARIOS_DESHABILITADOS;
 
-                Console.WriteLine("Cambiando al usuario de grupo");
-                bool ok = zk.SetUserGroup(1, int.Parse(usuario.idUsuario), grupo);
+                reservasService.RegistrarLog($"{(usuario.nuevoEstadoHabilitado ? "Habilitando" : "Deshabilitado")} usuario {usuario.idUsuario}", ip, "INFO");
+                bool ok = zkteco.SetUserGroup(1, int.Parse(usuario.idUsuario), grupo);
 
                 if (!ok)
                 {
-                    int error = 0;
-                    zk.GetLastError(ref error);
-                    Console.WriteLine($"No se pudo cambiar al usuario de grupo: Error ({error})");
+                    reservasService.RegistrarLog($"Error al {(usuario.nuevoEstadoHabilitado ? "habilitar" : "deshabilitar")} usuario {usuario.idUsuario}", ip, "ERROR");
                     continue;
                 }
 
-                Console.WriteLine($"{DateTime.Now}. Usuario {usuario.idUsuario} {(usuario.nuevoEstadoHabilitado ? "habilitado" : "deshabilitado")} en torniquete {usuario.ipTorniquete}.");
+                reservasService.RegistrarLog($"Usuario {usuario.idUsuario} {(usuario.nuevoEstadoHabilitado ? "habilitado" : "deshabilitado")}", ip, "INFO");
+                reservasService.CambiarEstadoUsuario(usuario.idUsuario, usuario.ipTorniquete, usuario.nuevoEstadoHabilitado);
             }
 
-            zk.RefreshData(1);
-            zk.EnableDevice(1, true);
+            zkteco.RefreshData(1);
+            zkteco.EnableDevice(1, true);
+            zkteco.Disconnect();
+            reservasService.RegistrarLog("Conexión finalizada", ip, "INFO");
 
             return "Usuarios actualizados";
         }
@@ -562,6 +588,13 @@ namespace API_Torniquetes.Services
             }
 
             return version;
+        }
+
+        public void ReiniciarServicio()
+        {
+            IZKEM zkteco = new CZKEMClass();
+            zkteco.Connect_Net(IP_TORNIQUETE_ENROLADOR, PUERTO);
+            zkteco.Disconnect();
         }
     }
 }

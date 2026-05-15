@@ -19,15 +19,6 @@ namespace API_Torniquetes.Controllers
             this.scopeFactory = scopeFactory;
         }
 
-        [HttpGet("verificar")]
-        public ActionResult VerificarConexionAPI()
-        {
-            return Ok(new
-            {
-                message = "API conectada correctamente"
-            });
-        }
-
         [HttpGet(Name = "Conectar")]
         public ActionResult Conectar(string ip, int puerto = 4370)
         {
@@ -43,6 +34,8 @@ namespace API_Torniquetes.Controllers
                     conectado = false
                 });
             }
+
+            zKTecoService.Desconectar();
 
             return Ok(new
             {
@@ -85,14 +78,17 @@ namespace API_Torniquetes.Controllers
             using var scope = scopeFactory.CreateScope();
             var zktecoService = scope.ServiceProvider.GetRequiredService<IZKTecoService>();
 
-            var conexion = zktecoService.Conectar(ip, puerto);
+            /*var conexion = zktecoService.Conectar(ip, puerto);
 
             if (!conexion.Contains("Conectado"))
-                return BadRequest(conexion);
+                return BadRequest(conexion);*/
 
-            var resultado = zktecoService.CambiarEstadoUsuario(userId, habilitar);
+            var resultado = zktecoService.CambiarEstadoUsuario(userId, habilitar, ip);
 
-            zktecoService.Desconectar();
+            if (resultado.Contains("Error"))
+                return BadRequest(resultado);
+
+            //zktecoService.Desconectar();
 
             return Ok(resultado);
         }

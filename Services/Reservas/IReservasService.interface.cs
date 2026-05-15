@@ -10,5 +10,7 @@ namespace API_Torniquetes.Services.Reservas
         Dictionary<string, List<UsuarioEstadoVencido>> ObtenerUsuariosConNuevoEstado();
         void CambiarEstadoUsuario(string idUsuario, string ipTorniquete, bool habilitado);
         HashSet<string> ObtenerIdUsuariosFaltantes(string ipOrigen, string ipDestino);
+        void RegistrarLog(string log, string ipTorniquete, string codigo);
+        DateTime? ObtenerFechaUltimoLog();
     }
 }
