@@ -35,5 +35,15 @@ namespace API_Torniquetes.Services.Reservas
         {
             return reservaRepository.ObtenerIdUsuariosFaltantes(ipOrigen, ipDestino);
         }
+
+        public void RegistrarLog(string log, string ipTorniquete, string codigo)
+        {
+            reservaRepository.RegistrarLog(log, ipTorniquete, codigo);
+        }
+
+        public DateTime? ObtenerFechaUltimoLog()
+        {
+            return reservaRepository.ObtenerFechaUltimoLog();
+        }
     }
 }

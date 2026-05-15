@@ -113,39 +113,46 @@ namespace API_Torniquetes.Repositories.Reservas
             connection.Open();
 
             string query = @"
-                select *
-                from (
-                    select
-                        ea.id_usuario,
-                        ea.ip_torniquete,
-                        ea.habilitado as estado_actual,
+                with reservas_activas as (
+                    select distinct
+                        r.UserName,
+                        s.ip_torniquete
+                    from reserva r
+                    inner join calendario c
+                        on r.FkCalendario = c.IdCalendario
+                    inner join clase cl
+                        on c.Fk_Clase = cl.IdClases
+                    inner join sala s
+                        on cl.IdSala = s.id
+                    where getdate() >= dateadd(minute, -30, r.inicio_reserva)
+                      and getdate() <= r.fin_reserva
+                )
 
-                        case
-                            when u.idPerfil in (1, 2, 3) then 1
+                select 
+                    ea.id_usuario,
+                    ea.ip_torniquete,
+                    ea.habilitado as estado_actual,
 
-                            when exists (
-                                select 1
-                                from reserva r
-                                inner join calendario c
-                                    on r.FkCalendario = c.IdCalendario
-                                inner join clase cl
-                                    on c.Fk_Clase = cl.IdClases
-                                inner join sala s
-                                    on cl.IdSala = s.id
-                                where r.UserName = ea.rut_usuario
-                                  and s.ip_torniquete = ea.ip_torniquete
-                                  and getdate() >= dateadd(minute, -30, r.inicio_reserva)
-                                  and getdate() <= r.fin_reserva
-                            ) then 1
+                    case
+                        when u.idPerfil in (1,2,3) then 1
+                        when ra.UserName is not null then 1
+                        else 0
+                    end as estado_deseado
 
-                            else 0
-                        end as estado_deseado
+                from estadoacceso ea
+                left join usuario u
+                    on ea.rut_usuario = u.UserName
 
-                    from estadoacceso ea
-                    left join usuario u
-                        on ea.rut_usuario = u.UserName
-                ) aux
-                where estado_actual <> estado_deseado";
+                left join reservas_activas ra
+                    on ra.UserName = ea.rut_usuario
+                   and ra.ip_torniquete = ea.ip_torniquete
+
+                where ea.habilitado <>
+                    case
+                        when u.idPerfil in (1,2,3) then 1
+                        when ra.UserName is not null then 1
+                        else 0
+                    end";
 
             using SqlCommand command = new(query, connection);
             using SqlDataReader reader = command.ExecuteReader();
@@ -229,6 +236,44 @@ namespace API_Torniquetes.Repositories.Reservas
             }
 
             return idUsuarios;
+        }
+
+        public void RegistrarLog(string log, string ipTorniquete, string codigo)
+        {
+            using SqlConnection connection = new(dbConnectionString);
+            connection.Open();
+
+            string query = @"
+                insert into LogTorniquete(log, ip_torniquete, codigo)
+                values (@log, @ip_torniquete, @codigo)";
+
+            using SqlCommand command = new(query, connection);
+
+            command.Parameters.Add("@log", SqlDbType.NVarChar).Value = log;
+            command.Parameters.Add("@ip_torniquete", SqlDbType.NVarChar).Value = ipTorniquete;
+            command.Parameters.Add("@codigo", SqlDbType.NVarChar).Value = codigo;
+
+            command.ExecuteNonQuery();
+        }
+
+        public DateTime? ObtenerFechaUltimoLog()
+        {
+            using SqlConnection connection = new(dbConnectionString);
+            connection.Open();
+
+            string query = @"
+                select top 1 fecha
+                from LogTorniquete
+                order by fecha desc";
+
+            using SqlCommand command = new(query, connection);
+
+            object result = command.ExecuteScalar();
+
+            if (result == null || result == DBNull.Value)
+                return null;
+
+            return Convert.ToDateTime(result);
         }
     }
 }
