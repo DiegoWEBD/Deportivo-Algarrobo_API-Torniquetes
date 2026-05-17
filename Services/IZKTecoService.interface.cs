@@ -1,6 +1,6 @@
 ﻿using API_Torniquetes.Models;
 using API_Torniquetes.Models.Usuarios;
-using API_Torniquetes.Services.Reservas;
+using API_Torniquetes.Repositories.DB;
 
 namespace API_Torniquetes.Services
 {
@@ -10,13 +10,10 @@ namespace API_Torniquetes.Services
         void Desconectar();
         List<UsuarioZKTeco> ObtenerUsuarios();
         string CambiarEstadoUsuario(string userId, bool habilitar, string ip);
-        string CambiarEstadoUsuarios(List<UsuarioEstadoVencido> usuarios, string ip, IReservasService reservasService);
+        string CambiarEstadoUsuarios(List<UsuarioEstadoVencido> usuarios, string ip, IDBRepository dbRepository);
         UsuarioZKTeco? ObtenerUsuarioPorId(string userId);
         string ActualizarNombreUsuario(string userId, string nombre);
         string CopiarUsuarioConHuellas(string rut, string[] ipsDestino);
         string CopiarUsuariosConHuellas(string ipOrigen, string ipDestino);
-        string ObtenerFirmware();
-        string ObtenerAlgoritmoBiometrico();
-        void ReiniciarServicio();
     }
 }
