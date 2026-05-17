@@ -1,7 +1,6 @@
 ﻿using API_Torniquetes.Models;
 using API_Torniquetes.Models.Usuarios;
-using API_Torniquetes.Services.Reservas;
-using System.Reflection.PortableExecutable;
+using API_Torniquetes.Repositories.DB;
 using zkemkeeper;
 
 namespace API_Torniquetes.Services
@@ -119,26 +118,26 @@ namespace API_Torniquetes.Services
                 : "Usuario deshabilitado correctamente";
         }
 
-        public string CambiarEstadoUsuarios(List<UsuarioEstadoVencido> usuarios, string ip, IReservasService reservasService)
+        public string CambiarEstadoUsuarios(List<UsuarioEstadoVencido> usuarios, string ip, IDBRepository dbRepository)
         {
             IZKEM zkteco = new CZKEMClass();
 
-            reservasService.RegistrarLog("Iniciando conexión", ip, "INFO");
+            dbRepository.RegistrarLog("Iniciando conexión", ip, "INFO");
             bool conectado = zkteco.Connect_Net(ip, PUERTO);      
 
             if (!conectado)
             {
                 int error = 0;
                 zkteco.GetLastError(ref error);
-                reservasService.RegistrarLog($"Error de conexión. (Error Zkteco: {error})", ip, "ERROR");
+                dbRepository.RegistrarLog($"Error de conexión. (Error Zkteco: {error})", ip, "ERROR");
                 return $"Error al conectar al torniquete {ip}: {error}";
             }
 
-            reservasService.RegistrarLog("Conexión establecida", ip, "INFO");
+            dbRepository.RegistrarLog("Conexión establecida", ip, "INFO");
 
             if (!zkteco.EnableDevice(1, false))
             {
-                reservasService.RegistrarLog("Error al deshabilitar equipo", ip, "ERROR");
+                dbRepository.RegistrarLog("Error al deshabilitar equipo", ip, "ERROR");
                 return "Error al deshabilitar el torniquete";
             }
                 
@@ -148,7 +147,6 @@ namespace API_Torniquetes.Services
                 zkteco.EnableDevice(1, true);
                 return "Error al leer los usuarios";
             }
-            reservasService.RegistrarLog("Información de usuarios obtenida", ip, "INFO");
 
             zkteco.RefreshData(1);
 
@@ -158,23 +156,23 @@ namespace API_Torniquetes.Services
                     ? ID_GRUPO_USUARIOS_HABILITADOS
                     : ID_GRUPO_USUARIOS_DESHABILITADOS;
 
-                reservasService.RegistrarLog($"{(usuario.nuevoEstadoHabilitado ? "Habilitando" : "Deshabilitado")} usuario {usuario.idUsuario}", ip, "INFO");
+                dbRepository.RegistrarLog($"{(usuario.nuevoEstadoHabilitado ? "Habilitando" : "Deshabilitando")} usuario {usuario.idUsuario}", ip, "INFO");
                 bool ok = zkteco.SetUserGroup(1, int.Parse(usuario.idUsuario), grupo);
 
                 if (!ok)
                 {
-                    reservasService.RegistrarLog($"Error al {(usuario.nuevoEstadoHabilitado ? "habilitar" : "deshabilitar")} usuario {usuario.idUsuario}", ip, "ERROR");
+                    dbRepository.RegistrarLog($"Error al {(usuario.nuevoEstadoHabilitado ? "habilitar" : "deshabilitar")} usuario {usuario.idUsuario}", ip, "ERROR");
                     continue;
                 }
 
-                reservasService.RegistrarLog($"Usuario {usuario.idUsuario} {(usuario.nuevoEstadoHabilitado ? "habilitado" : "deshabilitado")}", ip, "INFO");
-                reservasService.CambiarEstadoUsuario(usuario.idUsuario, usuario.ipTorniquete, usuario.nuevoEstadoHabilitado);
+                dbRepository.RegistrarLog($"Usuario {usuario.idUsuario} {(usuario.nuevoEstadoHabilitado ? "habilitado" : "deshabilitado")}", ip, "INFO");
+                dbRepository.CambiarEstadoUsuario(usuario.idUsuario, usuario.ipTorniquete, usuario.nuevoEstadoHabilitado);
             }
 
             zkteco.RefreshData(1);
             zkteco.EnableDevice(1, true);
             zkteco.Disconnect();
-            reservasService.RegistrarLog("Conexión finalizada", ip, "INFO");
+            dbRepository.RegistrarLog("Conexión finalizada", ip, "INFO");
 
             return "Usuarios actualizados";
         }
@@ -294,7 +292,7 @@ namespace API_Torniquetes.Services
                 Desconectar();
 
                 using var scope = scopeFactory.CreateScope();
-                var reservasService = scope.ServiceProvider.GetRequiredService<IReservasService>();
+                var dbRepository = scope.ServiceProvider.GetRequiredService<IDBRepository>();
 
                 var resultados = new List<string>();
 
@@ -362,7 +360,7 @@ namespace API_Torniquetes.Services
                     if (!falloHuella)
                     {
                         bool habilitado = true;
-                        reservasService.RegistrarUsuarioEnBD(rut, ipDestino, habilitado);
+                        dbRepository.RegistrarUsuarioEnBD(rut, ipDestino, habilitado);
                         resultados.Add($"{ipDestino}: OK");
                     }
                 }
@@ -384,14 +382,14 @@ namespace API_Torniquetes.Services
             var resultados = new List<string>();
 
             using var scope = scopeFactory.CreateScope();
-            var reservasService = scope.ServiceProvider.GetRequiredService<IReservasService>();
+            var dbRepository = scope.ServiceProvider.GetRequiredService<IDBRepository>();
 
             try
             {
                 // ==============================
                 // 1. OBTENER USUARIOS FALTANTES
                 // ==============================
-                var idUsuariosFaltantes = reservasService.ObtenerIdUsuariosFaltantes(ipOrigen, ipDestino);
+                var idUsuariosFaltantes = dbRepository.ObtenerIdUsuariosFaltantes(ipOrigen, ipDestino);
 
                 if (idUsuariosFaltantes.Count == 0)
                     return "No hay usuarios faltantes";
@@ -562,39 +560,5 @@ namespace API_Torniquetes.Services
             }
         }
 
-        public string ObtenerFirmware()
-        {
-            string version = string.Empty;
-
-            if (!zk.GetFirmwareVersion(1, ref version))
-            {
-                int error = 0;
-                zk.GetLastError(ref error);
-                return $"Error obteniendo firmware: {error}";
-            }
-
-            return version;
-        }
-
-        public string ObtenerAlgoritmoBiometrico()
-        {
-            string version = string.Empty;
-
-            if (!zk.GetSysOption(1, "ZKFPVersion", out version))
-            {
-                int error = 0;
-                zk.GetLastError(ref error);
-                return $"Error obteniendo algoritmo: {error}";
-            }
-
-            return version;
-        }
-
-        public void ReiniciarServicio()
-        {
-            IZKEM zkteco = new CZKEMClass();
-            zkteco.Connect_Net(IP_TORNIQUETE_ENROLADOR, PUERTO);
-            zkteco.Disconnect();
-        }
     }
 }

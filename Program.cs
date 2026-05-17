@@ -1,7 +1,5 @@
-using API_Torniquetes.Repositories.Reservas;
+using API_Torniquetes.Repositories.DB;
 using API_Torniquetes.Services;
-using API_Torniquetes.Services.Background;
-using API_Torniquetes.Services.Reservas;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -14,10 +12,8 @@ builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
 builder.Services.AddScoped<IZKTecoService, ZKTecoService>();
-builder.Services.AddScoped<IReservaRepository, ReservaRepository>();
-builder.Services.AddScoped<IReservasService, ReservasService>();
+builder.Services.AddScoped<IDBRepository, DBRepository>();
 
-builder.Services.AddHostedService<PermisosBackgroundService>();
 
 var app = builder.Build();
 
